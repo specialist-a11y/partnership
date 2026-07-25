@@ -177,11 +177,11 @@
       margin-top: 24px;
     }
 
-    /* Proposal Navigation Grid */
+    /* Proposal Navigation Grid (Two columns for primary deliveries) */
     .proposals-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 28px;
       margin-top: 60px;
       margin-bottom: 120px;
     }
@@ -189,7 +189,7 @@
     .proposal-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      padding: 40px 32px;
+      padding: 48px 40px;
       border-radius: 4px;
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
@@ -213,8 +213,8 @@
 
     .proposal-card:hover {
       border-color: var(--primary);
-      box-shadow: 0 15px 35px rgba(200, 255, 0, 0.05);
-      transform: translateY(-3px);
+      box-shadow: 0 20px 45px rgba(200, 255, 0, 0.06);
+      transform: translateY(-4px);
     }
 
     .proposal-card:hover::before {
@@ -222,7 +222,7 @@
     }
 
     .card-top {
-      margin-bottom: 30px;
+      margin-bottom: 40px;
     }
 
     .card-tag {
@@ -232,7 +232,7 @@
       letter-spacing: 0.12em;
       text-transform: uppercase;
       display: inline-block;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
 
     .proposal-card:hover .card-tag {
@@ -241,7 +241,7 @@
 
     .card-title {
       font-family: var(--font-display);
-      font-size: 28px;
+      font-size: 34px;
       font-weight: 400;
       color: var(--text);
       letter-spacing: 0.02em;
@@ -250,49 +250,41 @@
     }
 
     .card-desc {
-      font-size: 14px;
+      font-size: 15px;
       color: var(--text-muted);
-      line-height: 1.6;
-      margin-top: 16px;
+      line-height: 1.7;
+      margin-top: 18px;
     }
 
     .card-actions {
       display: flex;
       gap: 12px;
-      margin-top: 20px;
+      margin-top: 24px;
     }
 
     .btn-card {
       font-family: var(--font-sans);
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 600;
       text-decoration: none;
       border: 1px solid rgba(200, 255, 0, 0.3);
-      padding: 10px 18px;
+      padding: 12px 24px;
       border-radius: 4px;
       background: rgba(200, 255, 0, 0.02);
       color: var(--primary);
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
       transition: all 0.3s;
+      width: 100%;
     }
 
     .btn-card:hover {
       background: var(--primary-glow);
       border-color: var(--primary);
       color: #FFF;
-    }
-
-    .btn-card.secondary {
-      border-color: rgba(255, 255, 255, 0.1);
-      background: rgba(255, 255, 255, 0.02);
-      color: var(--text);
-    }
-
-    .btn-card.secondary:hover {
-      border-color: rgba(255, 255, 255, 0.25);
-      background: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 0 15px rgba(200, 255, 0, 0.1);
     }
 
     footer {
@@ -341,97 +333,38 @@
         Interactive <span>Proposals</span> Navigator.
       </h1>
       <p class="hero-desc">
-        Explore high-fidelity designs, micro-animations, and lead-ingestion webhook simulators compiled for our client pitch. Select a prototype below to test in standalone mode or load inside the presentation shell.
+        Explore interactive mocks, margin models, search audits, and lead-ingestion webhook simulators compiled for our partner review. Choose a proposal module below to begin.
       </p>
     </header>
 
-    <!-- Proposals Index Grid -->
+    <!-- Proposals Index Grid (Pitch and Audit only) -->
     <div class="proposals-grid">
       
-      <!-- Card 1: Cider Carousel -->
-      <div class="proposal-card">
-        <div class="card-top">
-          <span class="card-tag">PRODUCT PROMOTION</span>
-          <h3 class="card-title">Fruitty Cider 3D Carousel</h3>
-          <p class="card-desc">
-            A premium full-screen showcase displaying 3D cider flavor cycles, dynamic mouse fruit parallax, and a collapsible Cloud Monitor drawer displaying ingestion logs.
-          </p>
-        </div>
-        <div class="card-actions">
-          <a href="fruit-cider-carousel.html" class="btn-card">Launch Standalone ↗</a>
-          <a href="zdminc-partner-pitch-preview.html" class="btn-card secondary">Pitch Shell 🖥️</a>
-        </div>
-      </div>
-
-      <!-- Card 2: Sandy Ridge Villas -->
-      <div class="proposal-card">
-        <div class="card-top">
-          <span class="card-tag">VILLA RESERVATION</span>
-          <h3 class="card-title">Sandy Ridge Villas Escape</h3>
-          <p class="card-desc">
-            A luxury full-screen suite selection carousel using generated Caribbean images, 3D card tilt behaviors, details panels, and booking simulation drawers.
-          </p>
-        </div>
-        <div class="card-actions">
-          <a href="sandy-ridge-villa.html" class="btn-card">Launch Standalone ↗</a>
-          <a href="zdminc-partner-pitch-preview.html" class="btn-card secondary">Pitch Shell 🖥️</a>
-        </div>
-      </div>
-
-      <!-- Card 3: Ferrari campaign -->
-      <div class="proposal-card">
-        <div class="card-top">
-          <span class="card-tag">AUTOMOTIVE CAMPAIGN</span>
-          <h3 class="card-title">Ferrari 296 GTB Bento</h3>
-          <p class="card-desc">
-            A high-impact promotional bento dashboard showing interactive specs modals, scroll-snaps, configuration metrics, and webhook checkout streams.
-          </p>
-        </div>
-        <div class="card-actions">
-          <a href="ferrari-promo.html" class="btn-card">Launch Standalone ↗</a>
-          <a href="zdminc-partner-pitch-preview.html" class="btn-card secondary">Pitch Shell 🖥️</a>
-        </div>
-      </div>
-
-      <!-- Card 4: Presentation Central -->
+      <!-- Card 1: Partner Pitch Presentation -->
       <div class="proposal-card">
         <div class="card-top">
           <span class="card-tag">PRESENTATION CENTRAL</span>
-          <h3 class="card-title">Partner Pitch Presentation</h3>
+          <h3 class="card-title">ZDM Partner Pitch & Shell</h3>
           <p class="card-desc">
-            The unified design shell embedding interactive client prototype frames inside mock browser viewports alongside business projections and growth forecasts.
+            The unified design shell embedding interactive client prototype frames (including the Fruitty Cider carousel, Sandy Ridge Villa, and Ferrari campaign) inside responsive browser viewports alongside business projections and growth forecasts.
           </p>
         </div>
         <div class="card-actions">
-          <a href="zdminc-partner-pitch-preview.html" class="btn-card" style="width: 100%; justify-content: center;">Enter Pitch Preview Shell 🖥️</a>
+          <a href="zdminc-partner-pitch-preview.html" class="btn-card">Enter Pitch Preview Shell 🖥️</a>
         </div>
       </div>
 
-      <!-- Card 5: Island Tote -->
-      <div class="proposal-card">
-        <div class="card-top">
-          <span class="card-tag">E-COMMERCE PREVIEW</span>
-          <h3 class="card-title">Island Tote E-Comm Preview</h3>
-          <p class="card-desc">
-            E-Commerce landing page displaying product customizers, checkout integrations, lead captures, and lead conversion logs.
-          </p>
-        </div>
-        <div class="card-actions">
-          <a href="island-tote-preview.html" class="btn-card">Launch Standalone ↗</a>
-        </div>
-      </div>
-
-      <!-- Card 6: Interactive Audit Guide -->
+      <!-- Card 2: Interactive Audit Guide -->
       <div class="proposal-card">
         <div class="card-top">
           <span class="card-tag">SEO & STRATEGY AUDIT</span>
           <h3 class="card-title">ZDM Agency Audit Guide</h3>
           <p class="card-desc">
-            An interactive strategic guide detailing diagnostic search assessments, performance benchmarks, and optimizations compiled for our partners.
+            An interactive strategic guide detailing diagnostic search performance assessments, organic benchmarks, technical compliance roadmaps, and optimization guidelines compiled for our partners.
           </p>
         </div>
         <div class="card-actions">
-          <a href="zdminc-audit-interactive-guide.html" class="btn-card">Launch Standalone ↗</a>
+          <a href="zdminc-audit-interactive-guide.html" class="btn-card">Launch Standalone Audit ↗</a>
         </div>
       </div>
 
@@ -440,7 +373,6 @@
     <footer>
       <div>© 2026 ZEE DIGITAL MARKETING INC. ALL RIGHTS RESERVED.</div>
       <div>
-        <a href="zdminc-partner-pitch-preview.html">PRESENTATION VIEW</a> · 
         <a href="https://github.com/specialist-a11y/partnership.git" target="_blank">GITHUB REPO</a>
       </div>
     </footer>
