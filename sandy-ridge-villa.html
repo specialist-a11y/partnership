@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sandy Ridge Villas — Barbados Luxury Retreat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090B10;
+      --card-bg: rgba(18, 22, 32, 0.4);
+      --card-border: rgba(197, 168, 128, 0.18);
+      --gold: #C5A880;
+      --gold-dim: rgba(197, 168, 128, 0.4);
+      --text: #F3F4F6;
+      --text-muted: #9CA3AF;
+      
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-sans: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+      
+      --transition-speed: 0.6s;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      margin: 0;
+      position: relative;
+    }
+
+    /* Ambient background image layer (full bleed) */
+    .background-image-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .bg-image-set {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      transition: opacity var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+      opacity: 0;
+      filter: brightness(0.22) contrast(0.95);
+    }
+
+    .bg-image-set.active {
+      opacity: 1;
+    }
+
+    /* Modern Luxury Header Layout */
+    .brand-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 90px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 48px;
+      z-index: 100;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(10px);
+    }
+
+    .brand-header .logo {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+    }
+
+    .brand-header .nav-links {
+      display: flex;
+      gap: 40px;
+    }
+
+    .brand-header .nav-link {
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      transition: color 0.3s;
+    }
+
+    .brand-header .nav-link:hover {
+      color: var(--gold);
+    }
+
+    .brand-header .btn-reserve {
+      border: 1px solid var(--gold-dim);
+      color: var(--gold);
+      padding: 10px 24px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      text-decoration: none;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .brand-header .btn-reserve:hover {
+      border-color: var(--gold);
+      background: rgba(197, 168, 128, 0.08);
+      color: #FFF;
+    }
+
+    .carousel-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding-top: 90px;
+      perspective: 1200px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Giant backdrop text in golden tint style */
+    .giant-bg-text-wrapper {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .giant-bg-text {
+      font-family: var(--font-display);
+      font-size: clamp(140px, 22vw, 420px);
+      font-weight: 300;
+      color: var(--gold);
+      opacity: 0;
+      letter-spacing: -0.01em;
+      position: absolute;
+      transform: scale(0.9) translateZ(-100px);
+      transition: all var(--transition-speed) cubic-bezier(0.16, 1, 0.3, 1);
+      visibility: hidden;
+      user-select: none;
+    }
+
+    .giant-bg-text.active {
+      visibility: visible;
+      transform: scale(1) translateZ(0);
+      opacity: 0.04;
+    }
+
+    /* Slider Track ( Peek-a-boo Card Layout ) */
+    .slider-track {
+      width: 100%;
+      max-width: 1000px;
+      height: 600px;
+      position: relative;
+      transform-style: preserve-3d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide {
+      position: absolute;
+      width: 320px;
+      height: 480px;
+      background: rgba(0,0,0,0.001) !important;
+      transform-style: preserve-3d;
+      transition: all var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+      cursor: pointer;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* peek-a-boo slide transitions */
+    .slide.left {
+      transform: translate3d(-100%, 0, -260px) rotateY(25deg) scale(0.7);
+      opacity: 0.45;
+    }
+
+    .slide.active {
+      transform: translate3d(0, 0, 80px) rotateY(0deg) scale(1);
+      opacity: 1;
+      z-index: 10;
+    }
+
+    .slide.right {
+      transform: translate3d(100%, 0, -260px) rotateY(-25deg) scale(0.7);
+      opacity: 0.45;
+    }
+
+    .slide.hidden {
+      transform: translate3d(0, 0, -400px) scale(0.5);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Elegant Luxury Card styling */
+    .slide-card {
+      width: 100%;
+      height: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+      transition: all 0.3s;
+      transform-style: preserve-3d;
+    }
+
+    .slide.active:hover .slide-card {
+      border-color: var(--gold);
+      box-shadow: 0 30px 80px rgba(197, 168, 128, 0.15);
+    }
+
+    .slide-img-wrapper {
+      width: 100%;
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .slide-img-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .slide.active:hover .slide-img-wrapper img {
+      transform: scale(1.06);
+    }
+
+    .slide-card-details {
+      padding: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(9, 11, 16, 0.8);
+    }
+
+    .slide-card-tag {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--gold);
+      letter-spacing: 0.15em;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .slide-card-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 500;
+      color: #FFF;
+      margin-bottom: 4px;
+    }
+
+    .slide-card-price {
+      font-size: 13.5px;
+      color: var(--text-muted);
+    }
+
+    /* Left-side Info Panel layout */
+    .info-panels-container {
+      position: absolute;
+      left: 80px;
+      bottom: 120px;
+      max-width: 440px;
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    .info-panel {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 440px;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all var(--transition-speed) cubic-bezier(0.16, 1, 0.3, 1);
+      visibility: hidden;
+    }
+
+    .info-panel.active {
+      opacity: 1;
+      transform: translateY(0);
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .info-category {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--gold);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .info-category::before {
+      content: '';
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 8px var(--gold);
+    }
+
+    .info-title {
+      font-family: var(--font-display);
+      font-size: clamp(32px, 4vw, 44px);
+      line-height: 1.15;
+      font-weight: 300;
+      color: #FFF;
+      margin-bottom: 16px;
+    }
+
+    .info-title em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .info-desc {
+      font-size: 14.5px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 30px;
+    }
+
+    .info-cta {
+      display: flex;
+      gap: 16px;
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      color: #000;
+      border: none;
+      padding: 14px 28px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-gold:hover {
+      background: #E8D3B9;
+      transform: translateY(-2px);
+    }
+
+    .btn-outline {
+      border: 1px solid var(--gold-dim);
+      color: var(--gold);
+      padding: 14px 28px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s;
+    }
+
+    .btn-outline:hover {
+      border-color: var(--gold);
+      background: rgba(197, 168, 128, 0.05);
+    }
+
+    /* Right-side Indicator */
+    .slide-indicator {
+      position: absolute;
+      right: 80px;
+      bottom: 120px;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      z-index: 20;
+    }
+
+    /* Edge-hover zones */
+    .nav-zone {
+      position: fixed;
+      top: 90px;
+      bottom: 0;
+      width: 150px;
+      display: flex;
+      align-items: center;
+      z-index: 99;
+      cursor: pointer;
+    }
+
+    .nav-zone.left {
+      left: 0;
+      justify-content: flex-start;
+      padding-left: 48px;
+    }
+
+    .nav-zone.right {
+      right: 0;
+      justify-content: flex-end;
+      padding-right: 48px;
+    }
+
+    .nav-arrow {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--gold-dim);
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: scale(0.9);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .nav-zone:hover .nav-arrow {
+      opacity: 1;
+      transform: scale(1);
+      background: rgba(197, 168, 128, 0.1);
+      border-color: var(--gold);
+    }
+
+    .nav-arrow:hover {
+      background: var(--gold) !important;
+      color: #000 !important;
+      transform: scale(1.08) !important;
+    }
+
+    /* Collapsible Console Drawer at the bottom */
+    .console-drawer {
+      position: fixed;
+      bottom: -320px;
+      left: 0;
+      right: 0;
+      height: 380px;
+      background: #090B10;
+      border-top: 1px solid rgba(197, 168, 128, 0.15);
+      z-index: 1000;
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 -20px 50px rgba(0,0,0,0.6);
+    }
+
+    .console-drawer.open {
+      transform: translateY(-320px);
+    }
+
+    .drawer-handle {
+      height: 60px;
+      background: rgba(197, 168, 128, 0.02);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 40px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(197, 168, 128, 0.05);
+    }
+
+    .drawer-title {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .drawer-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10B981;
+      box-shadow: 0 0 8px #10B981;
+    }
+
+    .drawer-btn {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid var(--gold-dim);
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .drawer-btn:hover {
+      border-color: var(--gold);
+      color: #FFF;
+    }
+
+    .drawer-content {
+      padding: 30px 40px;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 40px;
+      height: 320px;
+      color: #E2E8F0;
+    }
+
+    .booking-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .form-input {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 10px;
+      color: #FFF;
+      font-family: var(--font-sans);
+      font-size: 13px;
+      transition: all 0.3s;
+    }
+
+    .form-input:focus {
+      border-color: var(--gold);
+      outline: none;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .form-btn {
+      grid-column: span 2;
+      background: var(--gold);
+      color: #000;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 12px;
+      border: none;
+      cursor: pointer;
+      text-transform: uppercase;
+      margin-top: 10px;
+      transition: all 0.3s;
+    }
+
+    .form-btn:hover {
+      background: #E8D3B9;
+    }
+
+    .log-window {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.03);
+      border-radius: 6px;
+      padding: 16px;
+      height: 220px;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .log-row { display: flex; gap: 8px; }
+    .log-time { color: var(--gold-dim); }
+    .log-tag { font-weight: 600; }
+    .log-tag.info { color: #3B82F6; }
+    .log-tag.webhook { color: #8B5CF6; }
+    .log-tag.success { color: #10B981; }
+
+    /* =========================================================================
+       RESPONSIVE ADJUSTMENTS FOR IFRAME PREVIEWS (16:10 Shell)
+       ========================================================================= */
+    body.in-iframe {
+      height: 100%;
+      min-height: 100%;
+    }
+
+    body.in-iframe .brand-header {
+      height: 60px;
+      padding: 0 24px;
+    }
+
+    body.in-iframe .brand-header .logo {
+      font-size: 20px;
+    }
+
+    body.in-iframe .brand-header .nav-links {
+      gap: 20px;
+    }
+
+    body.in-iframe .brand-header .nav-link {
+      font-size: 11px;
+    }
+
+    body.in-iframe .brand-header .btn-reserve {
+      padding: 6px 16px;
+      font-size: 11px;
+    }
+
+    body.in-iframe .carousel-container {
+      padding-top: 60px;
+    }
+
+    body.in-iframe .slider-track {
+      height: 420px;
+    }
+
+    body.in-iframe .slide {
+      height: 380px;
+      width: 250px;
+    }
+
+    body.in-iframe .slide-card-details {
+      padding: 16px;
+    }
+
+    body.in-iframe .slide-card-title {
+      font-size: 20px;
+    }
+
+    body.in-iframe .info-panels-container {
+      left: 40px;
+      bottom: 80px;
+      max-width: 320px;
+    }
+
+    body.in-iframe .info-panel {
+      width: 320px;
+    }
+
+    body.in-iframe .info-title {
+      font-size: clamp(24px, 3vw, 32px);
+      margin-bottom: 10px;
+    }
+
+    body.in-iframe .info-desc {
+      font-size: 13px;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    body.in-iframe .btn-gold,
+    body.in-iframe .btn-outline {
+      padding: 10px 20px;
+      font-size: 11px;
+    }
+
+    body.in-iframe .slide-indicator {
+      right: 40px;
+      bottom: 80px;
+      font-size: 12px;
+    }
+
+    body.in-iframe .nav-zone {
+      top: 60px;
+    }
+
+    body.in-iframe .nav-arrow {
+      width: 44px;
+      height: 44px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Fading Images -->
+  <div class="background-image-layer">
+    <div id="bg-0" class="bg-image-set active" style="background-image: url('zdm-assets/villa_royale.png');"></div>
+    <div id="bg-1" class="bg-image-set" style="background-image: url('zdm-assets/infinity_pool.png');"></div>
+    <div id="bg-2" class="bg-image-set" style="background-image: url('zdm-assets/beach_cove.png');"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="brand-header">
+    <div class="logo">SANDY RIDGE</div>
+    <nav class="nav-links">
+      <a href="#" class="nav-link">Retreat</a>
+      <a href="#" class="nav-link">Suites</a>
+      <a href="#" class="nav-link">Experiences</a>
+    </nav>
+    <button class="btn-reserve" onclick="toggleConsole(true)">Reserve</button>
+  </header>
+
+  <div class="carousel-container">
+    <!-- Giant backdrop text -->
+    <div class="giant-bg-text-wrapper">
+      <div id="word-0" class="giant-bg-text active">Royale</div>
+      <div id="word-1" class="giant-bg-text">Infinity</div>
+      <div id="word-2" class="giant-bg-text">Beach</div>
+    </div>
+
+    <!-- 3D Slider Track -->
+    <div class="slider-track" id="sliderTrack">
+      
+      <!-- Slide 0 -->
+      <div id="slide-0" class="slide active" onclick="gotoSlide(0)">
+        <div class="slide-card">
+          <div class="slide-img-wrapper">
+            <img src="zdm-assets/villa_royale.png" alt="Villa Royale">
+          </div>
+          <div class="slide-card-details">
+            <div class="slide-card-tag">WEEKLY RATE</div>
+            <div class="slide-card-title">Villa Royale</div>
+            <div class="slide-card-price">$18,000 USD</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 1 -->
+      <div id="slide-1" class="slide right" onclick="gotoSlide(1)">
+        <div class="slide-card">
+          <div class="slide-img-wrapper">
+            <img src="zdm-assets/infinity_pool.png" alt="Infinity Pool">
+          </div>
+          <div class="slide-card-details">
+            <div class="slide-card-tag">AMENITY SHOWCASE</div>
+            <div class="slide-card-title">Infinity Pool</div>
+            <div class="slide-card-price">Included</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 2 -->
+      <div id="slide-2" class="slide left" onclick="gotoSlide(2)">
+        <div class="slide-card">
+          <div class="slide-img-wrapper">
+            <img src="zdm-assets/beach_cove.png" alt="Secluded Cove">
+          </div>
+          <div class="slide-card-details">
+            <div class="slide-card-tag">BEACH ESCAPE</div>
+            <div class="slide-card-title">Private Cove</div>
+            <div class="slide-card-price">Included</div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+
+    <!-- Left side info overlays -->
+    <div class="info-panels-container">
+      <!-- Info 0 -->
+      <div id="info-0" class="info-panel active">
+        <div class="info-category">EXQUISITE BARBADOS ESCAPE</div>
+        <h2 class="info-title">Where Ocean Breezes Meet <em>Effortless Luxury</em>.</h2>
+        <p class="info-desc">An architectural masterpiece perched on the ridge of Saint James. Unrivaled panoramic views, five-star private staffing, and a secluded private beach cove.</p>
+        <div class="info-cta">
+          <button class="btn-gold" onclick="bookSuite('Villa Royale')">Book Reservation</button>
+          <a href="#" class="btn-outline">Explore Details</a>
+        </div>
+      </div>
+
+      <!-- Info 1 -->
+      <div id="info-1" class="info-panel">
+        <div class="info-category">CURATED AMENITY</div>
+        <h2 class="info-title">Saltwater <em>Infinity Pool</em>.</h2>
+        <p class="info-desc">A 60-foot heated saltwater pool that merges seamlessly with the turquoise horizon. Complete with plush daybeds, a swim-up bar, and dedicated butler service.</p>
+        <div class="info-cta">
+          <button class="btn-gold" onclick="bookSuite('Infinity Pool')">Book Reservation</button>
+          <a href="#" class="btn-outline">Explore Details</a>
+        </div>
+      </div>
+
+      <!-- Info 2 -->
+      <div id="info-2" class="info-panel">
+        <div class="info-category">ISLAND ESCAPE</div>
+        <h2 class="info-title">Your Secluded <em>Beach Cove</em>.</h2>
+        <p class="info-desc">Direct private path access to a quiet white sand bay, fully equipped with private beach cabanas, diving gear, and a sunset yacht charter ready for deployment.</p>
+        <div class="info-cta">
+          <button class="btn-gold" onclick="bookSuite('Private Cove')">Book Reservation</button>
+          <a href="#" class="btn-outline">Explore Details</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right slide page indicator -->
+    <div class="slide-indicator" id="slideIndicator">01 / 03</div>
+  </div>
+
+  <!-- Edge-hover Navigation Zones -->
+  <div class="nav-zone left" onclick="rotateLeft()">
+    <div class="nav-arrow">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </div>
+  </div>
+  <div class="nav-zone right" onclick="rotateRight()">
+    <div class="nav-arrow">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </div>
+  </div>
+
+  <!-- Realtime Webhook Logging Console (Collapsible bottom drawer) -->
+  <div class="console-drawer" id="consoleDrawer">
+    <div class="drawer-handle" onclick="toggleConsole()">
+      <div class="drawer-title" id="consoleTitle">
+        <span class="drawer-indicator"></span>
+        <span>EXPERIENCE MONITOR (VILLA INTAKE WEBHOOK)</span>
+      </div>
+      <button class="drawer-btn" id="drawerToggleBtn">OPEN MONITOR ▲</button>
+    </div>
+    
+    <div class="drawer-content">
+      <!-- Reservation Form -->
+      <div>
+        <div class="form-label" style="margin-bottom: 12px; color: var(--text);">Submit Booking Request</div>
+        <form onsubmit="runSimulation(event)">
+          <div class="booking-form">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" id="sim-name" class="form-input" placeholder="Katrina Payne" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" id="sim-email" class="form-input" placeholder="katrina@example.com" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Check In</label>
+              <input type="date" class="form-input" required value="2026-08-01">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Guests</label>
+              <input type="number" class="form-input" min="1" max="10" value="4" required>
+            </div>
+            <button type="submit" class="form-btn" id="sim-submit-btn">Submit Booking & Test Flow</button>
+          </div>
+        </form>
+      </div>
+      
+      <!-- Console logs stream -->
+      <div>
+        <div class="form-label" style="margin-bottom: 12px; color: var(--text-muted);">Console Streams</div>
+        <div class="log-window" id="consoleLogs">
+          <div class="log-row">
+            <span class="log-time">[00:00:00]</span>
+            <span class="log-tag info">SYSTEM</span>
+            <span>Standing by for villa booking webhook trigger...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let activeIndex = 0;
+    const slides = [
+      { id: 'slide-0', wordId: 'word-0', bgId: 'bg-0', infoId: 'info-0' },
+      { id: 'slide-1', wordId: 'word-1', bgId: 'bg-1', infoId: 'info-1' },
+      { id: 'slide-2', wordId: 'word-2', bgId: 'bg-2', infoId: 'info-2' }
+    ];
+
+    // Detect if running inside iframe and apply class
+    if (window.self !== window.top) {
+      document.body.classList.add('in-iframe');
+    }
+
+    function updateCarousel() {
+      // Update slides positions
+      const n = slides.length;
+      slides.forEach((slide, idx) => {
+        const slideEl = document.getElementById(slide.id);
+        const wordEl = document.getElementById(slide.wordId);
+        const bgEl = document.getElementById(slide.bgId);
+        const infoEl = document.getElementById(slide.infoId);
+        
+        slideEl.className = 'slide'; // Reset
+        wordEl.classList.remove('active');
+        bgEl.classList.remove('active');
+        infoEl.classList.remove('active');
+        
+        // Reset 3D card tilt transform
+        const card = slideEl.querySelector('.slide-card');
+        if (card) {
+          card.style.transform = 'rotateY(0deg) rotateX(0deg) scale(1)';
+        }
+        
+        if (idx === activeIndex) {
+          slideEl.classList.add('active');
+          wordEl.classList.add('active');
+          bgEl.classList.add('active');
+          infoEl.classList.add('active');
+        } else if (idx === (activeIndex + 1) % n) {
+          slideEl.classList.add('right');
+        } else {
+          slideEl.classList.add('left');
+        }
+      });
+
+      // Update right indicator
+      document.getElementById('slideIndicator').innerText = `0${activeIndex + 1} / 03`;
+    }
+
+    function gotoSlide(idx) {
+      if (idx !== activeIndex) {
+        activeIndex = idx;
+        updateCarousel();
+      }
+    }
+
+    function rotateLeft() {
+      activeIndex = (activeIndex - 1 + slides.length) % slides.length;
+      updateCarousel();
+    }
+
+    function rotateRight() {
+      activeIndex = (activeIndex + 1) % slides.length;
+      updateCarousel();
+    }
+
+    // Set up interactive 3D card tilt (called once)
+    function setupCarouselInteractions() {
+      slides.forEach((slide, idx) => {
+        const slideEl = document.getElementById(slide.id);
+        const card = slideEl.querySelector('.slide-card');
+        
+        slideEl.addEventListener('mousemove', (e) => {
+          if (!slideEl.classList.contains('active')) return;
+          
+          const rect = slideEl.getBoundingClientRect();
+          const x = e.clientX - (rect.left + rect.width * 0.5);
+          const y = e.clientY - (rect.top + rect.height * 0.5);
+          
+          // Rotate card in 3D based on offset
+          card.style.transform = `rotateY(${x / 8}deg) rotateX(${-y / 8}deg) scale(1.02)`;
+        });
+        
+        slideEl.addEventListener('mouseleave', () => {
+          if (!slideEl.classList.contains('active')) return;
+          card.style.transform = 'rotateY(0deg) rotateX(0deg) scale(1)';
+        });
+        
+        slideEl.addEventListener('click', (e) => {
+          // If clicked a button inside info-panel or card, don't transition
+          if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') return;
+          gotoSlide(idx);
+        });
+      });
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') {
+        rotateLeft();
+      } else if (e.key === 'ArrowRight') {
+        rotateRight();
+      }
+    });
+
+    // Drawer Open/Close logic
+    let consoleOpen = false;
+    function toggleConsole(forceOpen = null) {
+      const drawer = document.getElementById('consoleDrawer');
+      const btn = document.getElementById('drawerToggleBtn');
+      
+      if (forceOpen !== null) {
+        if (forceOpen) {
+          drawer.classList.add('open');
+          btn.innerText = 'CLOSE MONITOR ▼';
+          consoleOpen = true;
+        } else {
+          drawer.classList.remove('open');
+          btn.innerText = 'OPEN MONITOR ▲';
+          consoleOpen = false;
+        }
+        return;
+      }
+      
+      if (!consoleOpen) {
+        drawer.classList.add('open');
+        btn.innerText = 'CLOSE MONITOR ▼';
+        consoleOpen = true;
+      } else {
+        drawer.classList.remove('open');
+        btn.innerText = 'OPEN MONITOR ▲';
+        consoleOpen = false;
+      }
+    }
+
+    // Logger Console Action
+    const logContainer = document.getElementById('consoleLogs');
+    
+    function logMessage(tag, message) {
+      const now = new Date();
+      const timeStr = `[${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}]`;
+      
+      const row = document.createElement('div');
+      row.className = 'log-row';
+      row.innerHTML = `
+        <span class="log-time">${timeStr}</span>
+        <span class="log-tag ${tag.toLowerCase()}">${tag.toUpperCase()}</span>
+        <span>${message}</span>
+      `;
+      logContainer.appendChild(row);
+      logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    let activeSelectedSuite = 'Villa Royale';
+
+    function bookSuite(suiteName) {
+      activeSelectedSuite = suiteName;
+      // Auto open console drawer
+      toggleConsole(true);
+      
+      // Update form submit button label to highlight active suite
+      document.getElementById('sim-submit-btn').innerText = `Submit booking for ${suiteName}`;
+    }
+
+    function runSimulation(event) {
+      event.preventDefault();
+      const name = document.getElementById('sim-name').value;
+      const email = document.getElementById('sim-email').value;
+
+      logMessage('info', `Booking request initiated for [${activeSelectedSuite}] by ${name} (${email})`);
+      
+      setTimeout(() => {
+        logMessage('webhook', `Webhook captured by make.com: Ingesting villa reservation...`);
+      }, 700);
+
+      setTimeout(() => {
+        logMessage('success', `CRM database updated (sandy_ridge_bookings). Assigned to Guest Concierge.`);
+      }, 1400);
+
+      setTimeout(() => {
+        logMessage('success', `Sent villa package overview & itinerary builder to: ${email}`);
+      }, 2100);
+
+      setTimeout(() => {
+        logMessage('info', `Dispatched SMS to Villa Operations Desk: "+1 246-***-**11"`);
+      }, 2800);
+
+      setTimeout(() => {
+        logMessage('success', `AI Scoring parsed: "VIP Lead. Value: $18,000 USD. Recommendation: Call immediately."`);
+      }, 3500);
+    }
+
+    // Initial setup
+    updateCarousel();
+    setupCarouselInteractions();
+  </script>
+</body>
+</html>

@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fruit Cider — 3D Carousel Showcase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://api.fontshare.com/v2/css?f[]=clash-display@500;600;700&f[]=general-sans@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Background colors from Figma */
+      --bg-pear: #C9E78A;
+      --bg-apple: #FFA3BE;
+      --bg-exotic: #85E5ED;
+      
+      --text-pear: #385723;
+      --text-apple: #833C0C;
+      --text-exotic: #443266;
+      
+      --font-display: 'Clash Display', sans-serif;
+      --font-sans: 'General Sans', sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+      
+      --transition-speed: 0.6s;
+      --text-color: var(--text-pear); /* Dynamically updated */
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-pear);
+      color: #111;
+      font-family: var(--font-sans);
+      overflow: hidden;
+      transition: background-color var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+      height: 100vh;
+      width: 100vw;
+      margin: 0;
+      position: relative;
+    }
+
+    /* Modern Figma Header Layout */
+    .brand-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 90px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 48px;
+      z-index: 100;
+    }
+
+    .brand-header .logo {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 28px;
+      letter-spacing: -0.01em;
+      text-transform: none;
+      color: var(--text-color);
+      transition: color var(--transition-speed) ease;
+    }
+
+    .brand-header .nav-links {
+      display: flex;
+      gap: 40px;
+    }
+
+    .brand-header .right-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .brand-header .nav-link {
+      font-family: var(--font-sans);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-color);
+      text-decoration: none;
+      transition: color var(--transition-speed) ease, opacity 0.3s;
+    }
+
+    .brand-header .nav-link:hover {
+      opacity: 0.7;
+    }
+
+    .brand-header .divider {
+      color: var(--text-color);
+      opacity: 0.4;
+      font-size: 14px;
+      transition: color var(--transition-speed) ease;
+    }
+
+    .carousel-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding-top: 90px;
+      perspective: 1200px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Giant background text - Title Case & White */
+    .giant-bg-text-wrapper {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .giant-bg-text {
+      font-family: var(--font-display);
+      font-size: clamp(140px, 26vw, 480px);
+      font-weight: 700;
+      color: #ffffff;
+      opacity: 0;
+      text-transform: none;
+      letter-spacing: -0.03em;
+      position: absolute;
+      transform: scale(0.9) translateZ(-100px);
+      transition: all var(--transition-speed) cubic-bezier(0.16, 1, 0.3, 1);
+      visibility: hidden;
+      user-select: none;
+    }
+
+    .giant-bg-text.active {
+      visibility: visible;
+      transform: scale(1) translateZ(0);
+      opacity: 1;
+    }
+
+    /* Floating Fruits Parallax layer */
+    .fruits-parallax-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .parallax-fruit-set {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transition: opacity var(--transition-speed) ease, transform 0.1s ease-out;
+      transform: scale(1.02);
+    }
+
+    .parallax-fruit-set.active {
+      opacity: 1;
+    }
+
+    /* Slider Track */
+    .slider-track {
+      width: 100%;
+      max-width: 1000px;
+      height: 620px;
+      position: relative;
+      transform-style: preserve-3d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .slide {
+      position: absolute;
+      width: 400px;
+      height: 620px;
+      background: rgba(0, 0, 0, 0.001) !important; /* Subtle background for reliable hover target */
+      box-shadow: none !important;
+      transform-style: preserve-3d;
+      transition: all var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+      cursor: pointer;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 3D transforms for states (Left/Right faded out to match mockup) */
+    .slide.left {
+      transform: translate3d(-100%, 0, -300px) rotateY(35deg) scale(0.6);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .slide.active {
+      transform: translate3d(0, 0, 50px) rotateY(0deg) scale(1);
+      opacity: 1;
+      z-index: 10;
+      pointer-events: auto;
+    }
+
+    .slide.right {
+      transform: translate3d(100%, 0, -300px) rotateY(-35deg) scale(0.6);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .slide.hidden {
+      transform: translate3d(0, 0, -400px) scale(0.5);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Centered prominent can */
+    .can-wrapper {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      width: 270px;
+      height: 490px;
+      transform: translate(-50%, -50%) translateZ(40px);
+      transform-style: preserve-3d;
+      pointer-events: none;
+    }
+
+    .can-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 25px 35px rgba(0,0,0,0.18));
+      transition: transform 0.1s ease-out;
+      transform: translate(-50%, -50%) rotateY(0deg);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+    }
+
+    /* Card Footer - Add to Cart button (Revealed on Can Hover) */
+    .card-footer {
+      position: absolute;
+      bottom: 75px;
+      left: 0;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 20;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+
+    .slide.active:hover .card-footer {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .btn-action {
+      background: #111;
+      color: #FFF;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 99px;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .btn-action:hover {
+      transform: scale(1.05);
+      background: #000;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+
+    /* Edge-hover Navigation Zones & Arrows */
+    .nav-zone {
+      position: fixed;
+      top: 90px;
+      bottom: 0;
+      width: 150px;
+      display: flex;
+      align-items: center;
+      z-index: 99;
+      cursor: pointer;
+    }
+
+    .nav-zone.left {
+      left: 0;
+      justify-content: flex-start;
+      padding-left: 48px;
+    }
+
+    .nav-zone.right {
+      right: 0;
+      justify-content: flex-end;
+      padding-right: 48px;
+    }
+
+    .nav-arrow {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: scale(0.9);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .nav-zone:hover .nav-arrow {
+      opacity: 1;
+      transform: scale(1);
+      background: rgba(255, 255, 255, 0.55);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .nav-arrow:hover {
+      background: rgba(255, 255, 255, 0.95) !important;
+      transform: scale(1.08) !important;
+    }
+
+    /* Collapsible Console Drawer at the bottom */
+    .console-drawer {
+      position: fixed;
+      bottom: -320px;
+      left: 0;
+      right: 0;
+      height: 380px;
+      background: #0D0E15;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      z-index: 1000;
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 -20px 50px rgba(0,0,0,0.4);
+    }
+
+    .console-drawer.open {
+      transform: translateY(-320px);
+    }
+
+    .drawer-handle {
+      height: 60px;
+      background: rgba(255, 255, 255, 0.01);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 40px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .drawer-title {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: color var(--transition-speed) ease;
+    }
+
+    .drawer-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10B981;
+      box-shadow: 0 0 8px #10B981;
+    }
+
+    .drawer-btn {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #94A3B8;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .drawer-btn:hover {
+      border-color: rgba(255, 255, 255, 0.3);
+      color: #FFF;
+    }
+
+    .drawer-content {
+      padding: 30px 40px;
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 40px;
+      height: 320px;
+      color: #E2E8F0;
+    }
+
+    .console-pane {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+    }
+
+    .console-text {
+      font-size: 13.5px;
+      color: #94A3B8;
+      line-height: 1.6;
+    }
+
+    .log-window {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 6px;
+      padding: 16px;
+      height: 220px;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: #94A3B8;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .log-row { display: flex; gap: 8px; }
+    .log-time { color: rgba(255, 255, 255, 0.2); }
+    .log-tag { font-weight: 600; }
+    .log-tag.info { color: #3B82F6; }
+    .log-tag.webhook { color: #A78BFA; }
+    .log-tag.success { color: #10B981; }
+
+    /* =========================================================================
+       RESPONSIVE ADJUSTMENTS FOR IFRAME PREVIEWS (16:10 Shell)
+       ========================================================================= */
+    body.in-iframe {
+      height: 100%;
+      min-height: 100%;
+    }
+
+    body.in-iframe .brand-header {
+      height: 60px;
+      padding: 0 24px;
+    }
+
+    body.in-iframe .brand-header .logo {
+      font-size: 20px;
+    }
+
+    body.in-iframe .brand-header .nav-links {
+      gap: 20px;
+    }
+
+    body.in-iframe .brand-header .nav-link {
+      font-size: 12px;
+    }
+
+    body.in-iframe .carousel-container {
+      padding-top: 60px;
+    }
+
+    body.in-iframe .slider-track {
+      height: 420px;
+      margin-bottom: 0px;
+    }
+
+    body.in-iframe .slide {
+      height: 420px;
+      width: 280px;
+    }
+
+    body.in-iframe .can-wrapper {
+      width: 180px;
+      height: 330px;
+    }
+
+    body.in-iframe .card-footer {
+      bottom: 25px; /* Adjust button position to sit under smaller can */
+    }
+
+    body.in-iframe .console-drawer {
+      bottom: -320px;
+      height: 380px;
+    }
+
+    body.in-iframe .nav-zone {
+      top: 60px;
+    }
+
+    body.in-iframe .nav-arrow {
+      width: 44px;
+      height: 44px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Full-width Modern Header -->
+  <header class="brand-header">
+    <div class="logo">Fruity</div>
+    <nav class="nav-links">
+      <a href="#" class="nav-link">Shop</a>
+      <a href="#" class="nav-link">About</a>
+      <a href="#" class="nav-link">Careers</a>
+      <a href="#" class="nav-link">Partnership</a>
+      <a href="#" class="nav-link">Contact</a>
+    </nav>
+    <div class="right-links">
+      <a href="#" class="nav-link">My Cart</a>
+      <span class="divider">|</span>
+      <a href="#" class="nav-link">Register</a>
+    </div>
+  </header>
+
+  <div class="carousel-container">
+    <!-- Giant background words from Figma (White & Title Case) -->
+    <div class="giant-bg-text-wrapper">
+      <div id="word-0" class="giant-bg-text active">Pear</div>
+      <div id="word-1" class="giant-bg-text">Apple</div>
+      <div id="word-2" class="giant-bg-text">Exotic</div>
+    </div>
+
+    <!-- Floating Fruits Parallax layer -->
+    <div class="fruits-parallax-layer">
+      <div id="fruit-set-0" class="parallax-fruit-set active" style="background-image: url('zdm-assets/fruits_pear.png');"></div>
+      <div id="fruit-set-1" class="parallax-fruit-set" style="background-image: url('zdm-assets/fruits_apple.png');"></div>
+      <div id="fruit-set-2" class="parallax-fruit-set" style="background-image: url('zdm-assets/fruits_exotic.png');"></div>
+    </div>
+
+    <!-- 3D Slider Track (No background cards) -->
+    <div class="slider-track" id="sliderTrack">
+      
+      <!-- Pear Slide -->
+      <div id="slide-0" class="slide active" onclick="gotoSlide(0)">
+        <div class="can-wrapper">
+          <img src="zdm-assets/can_apple.png" class="can-image" alt="Pear Can">
+        </div>
+        <div class="card-footer">
+          <button class="btn-action" onclick="purchaseFlavor('Green Pear', event)">Add to Cart</button>
+        </div>
+      </div>
+
+      <!-- Apple Slide -->
+      <div id="slide-1" class="slide right" onclick="gotoSlide(1)">
+        <div class="can-wrapper">
+          <img src="zdm-assets/can_pear.png" class="can-image" alt="Apple Can">
+        </div>
+        <div class="card-footer">
+          <button class="btn-action" onclick="purchaseFlavor('Sweet Apple', event)">Add to Cart</button>
+        </div>
+      </div>
+
+      <!-- Exotic Slide -->
+      <div id="slide-2" class="slide left" onclick="gotoSlide(2)">
+        <div class="can-wrapper">
+          <img src="zdm-assets/can_exotic.png" class="can-image" alt="Exotic Can">
+        </div>
+        <div class="card-footer">
+          <button class="btn-action" onclick="purchaseFlavor('Exotic Mix', event)">Add to Cart</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- Edge-hover Navigation Zones -->
+  <div class="nav-zone left" onclick="rotateLeft()">
+    <div class="nav-arrow">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </div>
+  </div>
+  <div class="nav-zone right" onclick="rotateRight()">
+    <div class="nav-arrow">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </div>
+  </div>
+
+  <!-- Realtime Webhook Logging Console (Collapsible bottom drawer) -->
+  <div class="console-drawer" id="consoleDrawer">
+    <div class="drawer-handle" onclick="toggleConsole()">
+      <div class="drawer-title" id="consoleTitle">
+        <span class="drawer-indicator"></span>
+        <span>CART INGESTION WEBHOOK (ZDM CLOUD MONITOR)</span>
+      </div>
+      <button class="drawer-btn" id="drawerToggleBtn">OPEN MONITOR ▲</button>
+    </div>
+    
+    <div class="drawer-content">
+      <div class="console-pane">
+        <div>
+          <div class="console-text">
+            Click "Add to Cart" on any cider flavor card. Upon submission, test how checkouts trigger real-time lead ingestion webhooks and ad pixel conversion logs.
+          </div>
+        </div>
+        <div style="font-family: var(--font-mono); font-size: 10px; color: rgba(255,255,255,0.15);">
+          ZDMINC · PRODUCT FUNNEL LOG
+        </div>
+      </div>
+      
+      <div class="console-pane">
+        <div class="log-window" id="consoleLogs">
+          <div class="log-row">
+            <span class="log-time">[00:00:00]</span>
+            <span class="log-tag info">SYSTEM</span>
+            <span>Standing by for purchase checkout webhook triggers...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let activeIndex = 0;
+    const slides = [
+      { id: 'slide-0', wordId: 'word-0', fruitId: 'fruit-set-0', bg: 'var(--bg-pear)', color: 'var(--text-pear)' },
+      { id: 'slide-1', wordId: 'word-1', fruitId: 'fruit-set-1', bg: 'var(--bg-apple)', color: 'var(--text-apple)' },
+      { id: 'slide-2', wordId: 'word-2', fruitId: 'fruit-set-2', bg: 'var(--bg-exotic)', color: 'var(--text-exotic)' }
+    ];
+
+    // Detect if running inside iframe and apply class
+    if (window.self !== window.top) {
+      document.body.classList.add('in-iframe');
+    }
+
+    function updateCarousel() {
+      // Background color of body
+      document.body.style.backgroundColor = slides[activeIndex].bg;
+      
+      // Update text color variable on root
+      document.documentElement.style.setProperty('--text-color', slides[activeIndex].color);
+      
+      // Update slide positions, background text, and floating fruit visibility
+      const n = slides.length;
+      slides.forEach((slide, idx) => {
+        const slideEl = document.getElementById(slide.id);
+        const wordEl = document.getElementById(slide.wordId);
+        const fruitEl = document.getElementById(slide.fruitId);
+        
+        slideEl.className = 'slide'; // Reset
+        wordEl.classList.remove('active');
+        fruitEl.classList.remove('active');
+        
+        // Reset 3D transforms
+        const canImage = slideEl.querySelector('.can-image');
+        if (canImage) {
+          canImage.style.transform = 'translate(-50%, -50%) rotateY(0deg)';
+        }
+        
+        if (idx === activeIndex) {
+          slideEl.classList.add('active');
+          wordEl.classList.add('active');
+          fruitEl.classList.add('active');
+        } else if (idx === (activeIndex + 1) % n) {
+          slideEl.classList.add('right');
+        } else {
+          slideEl.classList.add('left');
+        }
+      });
+    }
+
+    function gotoSlide(idx) {
+      if (idx !== activeIndex) {
+        activeIndex = idx;
+        updateCarousel();
+      }
+    }
+
+    function rotateLeft() {
+      activeIndex = (activeIndex - 1 + slides.length) % slides.length;
+      updateCarousel();
+    }
+
+    function rotateRight() {
+      activeIndex = (activeIndex + 1) % slides.length;
+      updateCarousel();
+    }
+
+    // Set up interactive can tilt and clicks (called once)
+    function setupCarouselInteractions() {
+      slides.forEach((slide, idx) => {
+        const slideEl = document.getElementById(slide.id);
+        const can = slideEl.querySelector('.can-image');
+        
+        slideEl.addEventListener('mousemove', (e) => {
+          if (!slideEl.classList.contains('active')) return;
+          
+          const rect = slideEl.getBoundingClientRect();
+          const x = e.clientX - (rect.left + rect.width * 0.5);
+          
+          // Dynamic pivot based on iframe size
+          const pivotY = document.body.classList.contains('in-iframe') ? 0.4 : 0.4;
+          const y = e.clientY - (rect.top + rect.height * pivotY);
+          
+          // Rotate can in 3D based on offset
+          can.style.transform = `translate(-50%, -50%) rotateY(${x / 5}deg) rotateX(${-y / 5}deg) scale(1.05)`;
+        });
+        
+        slideEl.addEventListener('mouseleave', () => {
+          if (!slideEl.classList.contains('active')) return;
+          can.style.transform = 'translate(-50%, -50%) rotateY(0deg) rotateX(0deg) scale(1)';
+        });
+        
+        slideEl.addEventListener('click', (e) => {
+          // If clicked a button inside card, don't change slide
+          if (e.target.tagName === 'BUTTON') return;
+          gotoSlide(idx);
+        });
+      });
+    }
+
+    // Parallax mouse movements for background floating fruit layers
+    document.addEventListener('mousemove', (e) => {
+      const x = (e.clientX - window.innerWidth / 2) / 30;
+      const y = (e.clientY - window.innerHeight / 2) / 30;
+      
+      const activeFruits = document.getElementById(slides[activeIndex].fruitId);
+      if (activeFruits) {
+        activeFruits.style.transform = `translate(${x}px, ${y}px) scale(1.02)`;
+      }
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') {
+        rotateLeft();
+      } else if (e.key === 'ArrowRight') {
+        rotateRight();
+      }
+    });
+
+    // Drawer Open/Close logic
+    let consoleOpen = false;
+    function toggleConsole(forceOpen = null) {
+      const drawer = document.getElementById('consoleDrawer');
+      const btn = document.getElementById('drawerToggleBtn');
+      
+      if (forceOpen !== null) {
+        if (forceOpen) {
+          drawer.classList.add('open');
+          btn.innerText = 'CLOSE MONITOR ▼';
+          consoleOpen = true;
+        } else {
+          drawer.classList.remove('open');
+          btn.innerText = 'OPEN MONITOR ▲';
+          consoleOpen = false;
+        }
+        return;
+      }
+      
+      if (!consoleOpen) {
+        drawer.classList.add('open');
+        btn.innerText = 'CLOSE MONITOR ▼';
+        consoleOpen = true;
+      } else {
+        drawer.classList.remove('open');
+        btn.innerText = 'OPEN MONITOR ▲';
+        consoleOpen = false;
+      }
+    }
+
+    // Logging Console Action
+    const logContainer = document.getElementById('consoleLogs');
+    
+    function logMessage(tag, message) {
+      const now = new Date();
+      const timeStr = `[${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}]`;
+      
+      const row = document.createElement('div');
+      row.className = 'log-row';
+      row.innerHTML = `
+        <span class="log-time">${timeStr}</span>
+        <span class="log-tag ${tag.toLowerCase()}">${tag.toUpperCase()}</span>
+        <span>${message}</span>
+      `;
+      logContainer.appendChild(row);
+      logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    function purchaseFlavor(flavor, event) {
+      event.stopPropagation(); // Avoid triggering slide click
+      
+      // Auto open console drawer when checkout is triggered
+      toggleConsole(true);
+      
+      logMessage('info', `Cart Submission: Selected 1x Fruitty Cider (${flavor})`);
+      
+      setTimeout(() => {
+        logMessage('webhook', `Webhook Dispatched: POST "https://make.zdm.agency/webhooks/cider-cart"`);
+      }, 500);
+
+      setTimeout(() => {
+        logMessage('success', `Supabase synced: Cart Session ID updated for guest checkout.`);
+      }, 1000);
+
+      setTimeout(() => {
+        logMessage('webhook', `Meta Conversion API logged: "AddToCart" pixel fired (Match Quality: 92%)`);
+      }, 1600);
+
+      setTimeout(() => {
+        logMessage('success', `CRM Pipeline Status: Lead tagged [Interested - ${flavor}]`);
+      }, 2200);
+    }
+
+    // Initial setup
+    updateCarousel();
+    setupCarouselInteractions();
+  </script>
+</body>
+</html>

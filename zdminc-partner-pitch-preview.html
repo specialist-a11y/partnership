@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZDMINC Partner Pitch — Design Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0A0A0A;
+      --card-bg: rgba(20, 20, 20, 0.65);
+      --card-border: rgba(200, 255, 0, 0.08);
+      --text: #F5F5F0;
+      --text-muted: #888888;
+      --text-dark: #3A3A3A;
+      
+      /* ZDM Branding Accents */
+      --primary: #C8FF00; /* ZDM Lime Green */
+      --primary-dim: #A8D800;
+      --primary-glow: rgba(200, 255, 0, 0.15);
+      --pink: #FF3366; /* Hot Coral Pink fallback */
+      --green: #10B981;
+      
+      --font-display: 'Bebas Neue', 'Impact', sans-serif;
+      --font-sans: 'DM Sans', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      overflow-x: hidden;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      cursor: none; /* Hide default cursor to use brand custom cursor */
+    }
+
+    /* Custom Cursor from ZDM agency site */
+    #cursor-dot {
+      position: fixed;
+      width: 8px; height: 8px;
+      background: var(--primary);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.05s, width 0.2s, height 0.2s, opacity 0.2s;
+      mix-blend-mode: difference;
+    }
+    #cursor-ring {
+      position: fixed;
+      width: 40px; height: 40px;
+      border: 1.5px solid var(--primary);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.12s cubic-bezier(0.23,1,0.32,1), width 0.3s, height 0.3s, opacity 0.3s;
+      mix-blend-mode: difference;
+    }
+    body.cursor-hover #cursor-dot { width: 12px; height: 12px; }
+    body.cursor-hover #cursor-ring { width: 60px; height: 60px; opacity: 0.5; }
+
+    /* Noise overlay from ZDM site */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.025;
+      pointer-events: none;
+      z-index: 9997;
+    }
+
+    /* Ambient background glows */
+    .glow-blob-1 {
+      position: absolute;
+      top: -10%;
+      left: 10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(200, 255, 0, 0.04) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .glow-blob-2 {
+      position: absolute;
+      bottom: 20%;
+      right: -10%;
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(200, 255, 0, 0.02) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .grid-lines {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      max-width: 1200px;
+      margin: 0 auto;
+      border-left: 1px solid rgba(200, 255, 0, 0.015);
+      border-right: 1px solid rgba(200, 255, 0, 0.015);
+      z-index: 0;
+    }
+    
+    .grid-line {
+      border-right: 1px solid rgba(200, 255, 0, 0.015);
+      height: 100%;
+    }
+
+    header {
+      padding: 140px 24px 90px; 
+      border-bottom: 1px solid rgba(200, 255, 0, 0.06);
+      position: relative; 
+      z-index: 1;
+    }
+
+    .container {
+      max-width: 1020px; 
+      margin: 0 auto;
+      position: relative;
+    }
+
+    section {
+      max-width: 1020px; 
+      margin: 0 auto; 
+      padding: 90px 24px;
+      border-bottom: 1px solid rgba(200, 255, 0, 0.06);
+      position: relative;
+      z-index: 1;
+    }
+
+    .eyebrow {
+      font-family: var(--font-mono); 
+      font-size: 11px; 
+      letter-spacing: 0.18em; 
+      text-transform: uppercase; 
+      margin-bottom: 24px; 
+      display: flex; 
+      align-items: center; 
+      gap: 10px;
+      font-weight: 500;
+      color: var(--primary);
+      text-shadow: 0 0 10px rgba(200, 255, 0, 0.2);
+    }
+
+    .eyebrow::before {
+      content: '';
+      display: inline-block; 
+      width: 6px; 
+      height: 6px; 
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    .eyebrow.purple { color: var(--primary); }
+    .eyebrow.pink { color: var(--pink); text-shadow: 0 0 10px rgba(255, 51, 102, 0.2); }
+    .eyebrow.green { color: var(--green); text-shadow: 0 0 10px rgba(16, 185, 129, 0.2); }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-weight: 400; 
+      font-size: clamp(48px, 8vw, 84px); 
+      color: var(--text); 
+      margin-top: 12px; 
+      line-height: 0.95; 
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+    }
+
+    .hero-title span {
+      color: var(--primary);
+      text-shadow: 0 0 20px rgba(200, 255, 0, 0.1);
+    }
+
+    .hero-desc {
+      color: var(--text-muted); 
+      font-size: 16.5px; 
+      max-width: 740px; 
+      line-height: 1.75; 
+      margin-top: 32px;
+    }
+
+    /* Grid cards */
+    .hero-grid {
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+      gap: 20px; 
+      margin-top: 60px;
+    }
+
+    .flat-card {
+      background: var(--card-bg); 
+      border: 1px solid var(--card-border); 
+      padding: 32px; 
+      border-radius: 4px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    
+    .flat-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 10px 30px rgba(200, 255, 0, 0.05);
+      transform: translateY(-2px);
+    }
+
+    .card-label {
+      font-family: var(--font-mono); 
+      font-size: 10px; 
+      color: var(--text-muted); 
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .card-value {
+      font-family: var(--font-display);
+      font-weight: 400; 
+      font-size: 40px; 
+      color: var(--text); 
+      margin-top: 8px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .card-value.accent { 
+      color: var(--primary);
+    }
+    .card-value.green { 
+      color: var(--primary);
+    }
+
+    /* Gap metrics list */
+    .gap-grid {
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+      gap: 20px; 
+      margin-top: 12px;
+    }
+
+    .stat-card {
+      background: var(--card-bg); 
+      border: 1px solid var(--card-border); 
+      padding: 44px 32px;
+      border-radius: 4px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px rgba(200, 255, 0, 0.04);
+    }
+
+    .stat-big {
+      font-family: var(--font-display); 
+      font-weight: 400; 
+      font-size: 68px; 
+      line-height: 1;
+      color: var(--text);
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    
+    .stat-big.coral { color: var(--pink); }
+    .stat-big.gold { color: var(--primary); }
+    .stat-big.green { color: var(--primary); }
+
+    .stat-desc {
+      font-size: 14.5px; 
+      color: var(--text-muted); 
+      line-height: 1.65; 
+      margin-top: 16px;
+    }
+
+    /* Product Cards */
+    .prod-grid {
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+      gap: 20px;
+    }
+
+    .prod-card {
+      background: var(--card-bg); 
+      border: 1px solid var(--card-border); 
+      padding: 40px 30px; 
+      border-radius: 4px;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .prod-card:hover {
+      border-color: var(--primary);
+    }
+
+    .prod-num {
+      position: absolute; 
+      top: 24px; 
+      right: 24px; 
+      font-family: var(--font-mono); 
+      font-size: 10px; 
+      color: var(--text-dark);
+      font-weight: 600;
+    }
+
+    .prod-title {
+      font-family: var(--font-display);
+      font-weight: 400; 
+      font-size: 24px; 
+      color: var(--text);
+      margin-top: 8px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .prod-desc {
+      font-size: 14px; 
+      color: var(--text-muted); 
+      line-height: 1.65; 
+      margin-top: 12px;
+    }
+
+    /* Interactive Engine */
+    .modeler-box {
+      background: var(--card-bg); 
+      border: 1px solid var(--card-border); 
+      padding: 56px 48px;
+      border-radius: 4px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .modeler-header {
+      display: flex; 
+      justify-content: space-between; 
+      align-items: baseline; 
+      flex-wrap: wrap; 
+      gap: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 30px;
+    }
+
+    .modeler-title {
+      font-family: var(--font-display);
+      font-weight: 400; 
+      font-size: 32px; 
+      color: var(--text);
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .slider-container {
+      margin: 44px 0;
+    }
+
+    .slider-header {
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 18px;
+    }
+
+    /* Slider track */
+    input[type=range] { 
+      -webkit-appearance: none; 
+      width: 100%; 
+      height: 6px; 
+      background: rgba(200, 255, 0, 0.1); 
+      border-radius: 99px;
+      outline: none;
+    }
+    
+    input[type=range]::-webkit-slider-thumb { 
+      -webkit-appearance: none; 
+      width: 24px; 
+      height: 24px; 
+      border-radius: 50%;
+      background: var(--primary); 
+      border: 2px solid var(--bg); 
+      cursor: grab; 
+      box-shadow: 0 0 15px rgba(200, 255, 0, 0.4);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    
+    input[type=range]::-webkit-slider-thumb:active { 
+      cursor: grabbing; 
+      transform: scale(1.25);
+    }
+    
+    input[type=range]::-moz-range-thumb { 
+      width: 24px; 
+      height: 24px; 
+      border-radius: 50%;
+      background: var(--primary); 
+      border: 2px solid var(--bg); 
+      cursor: grab; 
+      box-shadow: 0 0 15px rgba(200, 255, 0, 0.4);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    
+    input[type=range]::-moz-range-thumb:active { 
+      cursor: grabbing; 
+      transform: scale(1.25);
+    }
+
+    /* Chart */
+    .chart-box {
+      margin-bottom: 56px;
+    }
+
+    .chart-bar {
+      height: 10px; 
+      display: flex; 
+      border-radius: 0px; 
+      overflow: hidden; 
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255,255,255,0.02);
+    }
+
+    .bar-segment {
+      transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .chart-legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      margin-top: 28px;
+    }
+
+    .legend-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .legend-tag {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+    }
+
+    .legend-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .legend-val {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Dynamic Pipeline client stack */
+    .client-grid {
+      display: grid; 
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+      gap: 14px;
+      margin-bottom: 56px;
+    }
+
+    .client-node {
+      border-radius: 4px;
+      padding: 20px;
+      border: 1px dashed rgba(200, 255, 0, 0.1);
+      background: transparent;
+      opacity: 0.2;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .client-node.active {
+      background: var(--card-bg);
+      border: 1px solid rgba(200, 255, 0, 0.25);
+      opacity: 1;
+    }
+
+    .client-node.active:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(200, 255, 0, 0.08);
+    }
+
+    .client-node-slot {
+      font-family: var(--font-mono); 
+      font-size: 9px; 
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      letter-spacing: 0.05em;
+    }
+
+    .client-node-name {
+      font-family: var(--font-display);
+      font-weight: 400; 
+      font-size: 18px; 
+      margin-top: 10px;
+      color: var(--text);
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .client-node-type {
+      font-size: 11px; 
+      margin-top: 4px;
+      color: var(--text-muted);
+    }
+
+    /* Results */
+    .results-grid {
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); 
+      gap: 20px;
+    }
+
+    .result-card {
+      background: rgba(255,255,255,0.01); 
+      padding: 28px; 
+      border-radius: 4px;
+      border: 1px solid var(--card-border);
+    }
+
+    .result-card-val {
+      font-family: var(--font-mono); 
+      font-size: 28px; 
+      font-weight: 600; 
+      margin-top: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    /* Why ZDMINC wins */
+    .win-grid {
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+      gap: 20px;
+    }
+
+    .win-card {
+      background: var(--card-bg); 
+      border: 1px solid var(--card-border); 
+      border-radius: 4px;
+      padding: 36px 30px; 
+      display: flex; 
+      gap: 20px;
+    }
+
+    .win-num {
+      font-family: var(--font-mono); 
+      font-weight: 600; 
+      font-size: 14px; 
+      color: var(--primary); 
+      line-height: 1.6;
+    }
+
+    /* 30-Day Plan */
+    .plan-grid {
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); 
+      gap: 20px; 
+      margin-top: 12px;
+    }
+
+    .plan-week {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 36px 30px;
+      border-radius: 4px;
+    }
+
+    .plan-week-num {
+      font-family: var(--font-mono); 
+      font-size: 10px; 
+      letter-spacing: 0.1em; 
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .plan-item {
+      font-size: 14px; 
+      line-height: 1.6; 
+      margin-top: 16px;
+      color: var(--text-muted);
+    }
+
+    .plan-item span {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* Case study preview frame */
+    .preview-container {
+      background: var(--card-bg); 
+      border: 1px solid var(--card-border); 
+      border-radius: 8px; 
+      padding: 36px; 
+      margin-top: 12px;
+    }
+
+    .preview-header {
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 28px; 
+      flex-wrap: wrap; 
+      gap: 16px;
+    }
+
+    .preview-external-btn {
+      font-family: var(--font-mono); 
+      font-size: 11px; 
+      color: var(--primary); 
+      text-decoration: none; 
+      border: 1px solid rgba(200, 255, 0, 0.3); 
+      padding: 8px 18px; 
+      border-radius: 4px; 
+      background: rgba(200, 255, 0, 0.02); 
+      display: flex; 
+      align-items: center; 
+      gap: 8px; 
+      transition: all 0.3s;
+    }
+
+    .preview-external-btn:hover {
+      background: var(--primary-glow);
+      border-color: var(--primary);
+      transform: translateY(-1px);
+    }
+
+    .preview-browser-shell {
+      border: 1px solid rgba(255,255,255,0.05); 
+      border-radius: 6px; 
+      overflow: hidden; 
+      background: #020305; 
+      aspect-ratio: 16 / 10; 
+      max-height: 580px; 
+      width: 100%;
+    }
+
+    /* Closing Banner */
+    .closing-banner {
+      margin-top: 60px; 
+      background: var(--primary-glow);
+      border: 1px solid rgba(200, 255, 0, 0.2);
+      padding: 48px; 
+      border-radius: 8px;
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      flex-wrap: wrap; 
+      gap: 28px;
+    }
+
+    .banner-title {
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 32px;
+      color: var(--text);
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .banner-desc {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-top: 10px;
+      max-width: 620px;
+    }
+
+    .banner-btn {
+      font-family: var(--font-mono); 
+      font-size: 12px; 
+      color: var(--bg); 
+      background: var(--primary);
+      border: none;
+      border-radius: 4px;
+      padding: 16px 32px;
+      font-weight: 600; 
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+      cursor: pointer;
+      box-shadow: 0 0 15px var(--primary-glow);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .banner-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(200, 255, 0, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom Cursor Elements -->
+  <div id="cursor-dot"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- Floating Ambient Glow fields -->
+  <div class="glow-blob-1"></div>
+  <div class="glow-blob-2"></div>
+
+  <!-- Structural wirelines in background -->
+  <div class="grid-lines">
+    <div class="grid-line"></div>
+    <div class="grid-line"></div>
+    <div class="grid-line"></div>
+  </div>
+
+  <!-- ---------- HERO SECTION ---------- -->
+  <header>
+    <div class="container">
+      <div class="eyebrow gold">Confidential · ZDMINC Partner Brief</div>
+      
+      <!-- Audience Segment Selector -->
+      <div style="display: flex; gap: 8px; margin: 36px 0 20px; flex-wrap: wrap;">
+        <button id="hero-tab-0" onclick="setHeroAudience(0)" class="preview-external-btn" style="background: rgba(200, 255, 0, 0.08); border-color: var(--primary); color: #FFF; font-family: var(--font-sans); text-transform: none; letter-spacing: 0em; font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 4px; padding: 10px 20px;">
+          🏎️ Car Dealerships
+        </button>
+        <button id="hero-tab-1" onclick="setHeroAudience(1)" class="preview-external-btn" style="font-family: var(--font-sans); text-transform: none; letter-spacing: 0em; font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 4px; padding: 10px 20px; border-color: rgba(200, 255, 0, 0.3); color: var(--primary); background: transparent;">
+          👜 Retail Brands
+        </button>
+        <button id="hero-tab-2" onclick="setHeroAudience(2)" class="preview-external-btn" style="font-family: var(--font-sans); text-transform: none; letter-spacing: 0em; font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 4px; padding: 10px 20px; border-color: rgba(200, 255, 0, 0.3); color: var(--primary); background: transparent;">
+          🏡 Boutique Resorts
+        </button>
+      </div>
+
+      <h1 class="hero-title" id="hero-dynamic-title" style="transition: opacity 0.2s ease-in-out;">
+        Every car launch in Barbados<br>
+        needs this package. <span>Nobody else sells it.</span>
+      </h1>
+      
+      <p class="hero-desc" id="hero-dynamic-desc" style="transition: opacity 0.2s ease-in-out;">
+        Move luxury automotive inventory off your lot in weeks. ZDMINC's <strong>Launch → Insight</strong> package bundles custom landing layouts, test-drive webhooks, automated email sequences, Meta ad spend, and AI performance dashboards. One fee. One retainer. One invoice.
+      </p>
+      
+      <div class="hero-grid">
+        <div class="flat-card">
+          <div class="card-label">ONE-TIME LAUNCH BUILD</div>
+          <div class="card-value accent">BDS $4,500</div>
+        </div>
+        
+        <div class="flat-card">
+          <div class="card-label">ALL-IN RETAINER</div>
+          <div class="card-value green">BDS $1,500<span style="font-size: 13px; font-weight: 400; color: var(--text-muted); text-transform: lowercase;">/mo</span></div>
+        </div>
+        
+        <div class="flat-card">
+          <div class="card-label">SETUP TO GO LIVE</div>
+          <div class="card-value">14 Days</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ---------- THE GAP ---------- -->
+  <section>
+    <div class="container">
+      <div class="eyebrow coral">The Opportunity · Core Metrics</div>
+      
+      <div class="gap-grid">
+        <div class="stat-card">
+          <div class="stat-big coral">13%</div>
+          <p class="stat-desc">of Caribbean adults use generative AI, compared to ~55% globally. The remaining 87% represents an open local market.</p>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-big gold">&lt;2%</div>
+          <p class="stat-desc">of AI and digital automation providers are based inside the Caribbean. Almost nobody is building these loops locally.</p>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-big green">0</div>
+          <p class="stat-desc">local competitors delivering landing layout + automated email flows + ad management as a single all-in-one product.</p>
+        </div>
+      </div>
+      
+      <p style="font-size: 14.5px; color: var(--text-muted); max-width: 740px; line-height: 1.7; margin-top: 36px;">
+        Caribbean businesses understand that automated marketing loops and client metrics matter, but they lack the local technical partners to implement them. This execution gap is the opportunity. We aren't selling abstract software tools — we are selling a marketing engine that drives sales.
+      </p>
+    </div>
+  </section>
+
+  <!-- ---------- THE PRODUCT ---------- -->
+  <section>
+    <div class="container">
+      <div class="eyebrow teal">Structure · The Four-Stage Machine</div>
+      
+      <div class="prod-grid">
+        <div class="prod-card">
+          <div class="prod-num">01</div>
+          <div class="prod-title">Landing Page</div>
+          <p class="prod-desc">High-speed conversion page tailored to the specific promotion. Built using optimized structural layouts in days.</p>
+        </div>
+
+        <div class="prod-card">
+          <div class="prod-num">02</div>
+          <div class="prod-title">Cart / Booking</div>
+          <p class="prod-desc">Deposits, reservations, or bookings. Shopify Buy buttons or scheduler integrations fire instant webhooks into our system.</p>
+        </div>
+
+        <div class="prod-card">
+          <div class="prod-num">03</div>
+          <div class="prod-title">Email Sequences</div>
+          <p class="prod-desc">Staggered automated flows (reminders, checkout recovery, review queries) driving engagement without manual follow-up.</p>
+        </div>
+
+        <div class="prod-card">
+          <div class="prod-num">04</div>
+          <div class="prod-title">AI Analytics</div>
+          <p class="prod-desc">Sleek monthly reports summarizing lead quality, cost per acquisition, and performance changes in clear, actionable terms.</p>
+        </div>
+      </div>
+      
+      <div style="margin-top: 36px; background: rgba(255, 255, 255, 0.01); border-left: 2px solid var(--primary); padding: 24px 30px; border-radius: 4px; font-size: 14.5px; color: var(--text-muted); line-height: 1.7; border-top: 1px solid var(--card-border); border-right: 1px solid var(--card-border); border-bottom: 1px solid var(--card-border);">
+        <strong style="color: var(--primary); font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; display: block; margin-bottom: 6px;">AD SPEND PARADIGM</strong>
+        "Your social ad spend is on us." We bundle <span style="color: var(--text); font-weight: 500;">BDS $600/month</span> of direct Meta/Google ad spend inside the retainer. This shifts the client's perspective from a cost-center to direct marketing value, and it is fully accounted for in our margin model.
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- CASE STUDY PREVIEW ---------- -->
+  <section>
+    <div class="container">
+      <div class="eyebrow gold">Case Study · Interactive Prototypes</div>
+      
+      <div class="preview-container">
+        <div class="preview-header">
+          <div>
+            <h3 class="modeler-title" id="case-study-title">Ferrari 296 GTB Campaign</h3>
+            <p style="font-size: 13.5px; color: var(--text-muted); margin-top: 4px;" id="case-study-desc">Live promotional landing page showing scroll-snaps, bento tabs, and webhook logs.</p>
+          </div>
+          <a href="ferrari-promo.html" target="_blank" id="external-preview-link" class="preview-external-btn">
+            Open Full Page ↗
+          </a>
+        </div>
+
+        <!-- Verticals Tab Bar -->
+        <div style="display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap;">
+          <button id="cs-tab-0" onclick="setCaseStudy('ferrari-promo.html', 'Ferrari 296 GTB Campaign', 'Live automotive promo landing page showing scroll-snaps, bento tabs, and webhook logs.', this)" class="preview-external-btn" style="background: rgba(200, 255, 0, 0.08); border-color: var(--primary); color: #FFF; font-family: var(--font-sans); text-transform: none; letter-spacing: 0em; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 4px;">
+            🏎️ Car Dealerships
+          </button>
+          <button id="cs-tab-1" onclick="setCaseStudy('fruit-cider-carousel.html', 'Fruitty Cider 3D Carousel', 'Interactive 3D cider can carousel with flavor transitions, mouse parallax, and webhook checkout logs.', this)" class="preview-external-btn" style="font-family: var(--font-sans); text-transform: none; letter-spacing: 0em; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 4px; border-color: rgba(200, 255, 0, 0.3); color: var(--primary); background: transparent;">
+            👜 Product Promotion
+          </button>
+          <button id="cs-tab-2" onclick="setCaseStudy('sandy-ridge-villa.html', 'Sandy Ridge Villas', 'Luxury accommodation booking intake flow featuring amenities bento and reservation hooks.', this)" class="preview-external-btn" style="font-family: var(--font-sans); text-transform: none; letter-spacing: 0em; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 4px; border-color: rgba(200, 255, 0, 0.3); color: var(--primary); background: transparent;">
+            🏡 Villa & Experience
+          </button>
+        </div>
+        
+        <div class="preview-browser-shell">
+          <iframe id="case-study-iframe" src="ferrari-promo.html" style="width: 100%; height: 100%; border: none;" title="Ferrari Landing Page Preview" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- THE INTERACTIVE MONEY ENGINE ---------- -->
+  <section>
+    <div class="container">
+      <div class="eyebrow green">Projections · Scale & Margins</div>
+      
+      <div class="modeler-box">
+        <div class="modeler-header">
+          <div>
+            <h3 class="modeler-title">What does <span id="clients-heading-count" style="color: var(--primary);">6 clients</span> on retainer look like?</h3>
+            <p style="font-size: 13.5px; color: var(--text-muted); margin-top: 4px;">Drag the slider to adjust client volume and review margin changes.</p>
+          </div>
+          <div style="font-family: var(--font-mono); font-size: 10px; color: var(--text-dark); letter-spacing: 0.1em;">
+            YEAR-ONE PROJECTION MODEL
+          </div>
+        </div>
+
+        <div class="slider-container">
+          <div class="slider-header">
+            <span style="font-family: var(--font-mono); font-size: 12px; color: var(--text-muted);">VOLUME</span>
+            <span id="clients-count-text" style="font-family: var(--font-mono); font-size: 18px; color: var(--primary); font-weight: 600;">6 Active Clients</span>
+          </div>
+          <input
+            type="range"
+            min="1"
+            max="15"
+            value="6"
+            id="clientSlider"
+            aria-label="Number of clients"
+          />
+          <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; color: var(--text-dark); margin-top: 12px;">
+            <span>1 Client</span>
+            <span>8 Clients</span>
+            <span>15 Clients</span>
+          </div>
+        </div>
+
+        <!-- DYNAMIC COST SPLIT BAR CHART -->
+        <div class="chart-box">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;">
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.05em;">MONTHLY RETAINER REVENUE SPLIT</span>
+            <span id="profit-percent-text" style="font-family: var(--font-mono); font-size: 11.5px; color: var(--green); font-weight: 600;">Net Profit Margin: 53%</span>
+          </div>
+          
+          <div class="chart-bar">
+            <div id="bar-ads" class="bar-segment" style="background: var(--pink);"></div>
+            <div id="bar-tools" class="bar-segment" style="background: rgba(255, 255, 255, 0.06);"></div>
+            <div id="bar-margin" class="bar-segment" style="background: var(--primary);"></div>
+          </div>
+          
+          <div class="chart-legend">
+            <div class="legend-item">
+              <div class="legend-tag">
+                <span class="legend-indicator" style="background: var(--pink); color: var(--pink);"></span>
+                <span>Ad Spend Allocation</span>
+              </div>
+              <div id="val-legend-ads" class="legend-val">BDS $3,600</div>
+            </div>
+            
+            <div class="legend-item">
+              <div class="legend-tag">
+                <span class="legend-indicator" style="background: rgba(255, 255, 255, 0.3); color: rgba(255, 255, 255, 0.3);"></span>
+                <span>API & Software Costs</span>
+              </div>
+              <div id="val-legend-tools" class="legend-val">BDS $600</div>
+            </div>
+            
+            <div class="legend-item">
+              <div class="legend-tag">
+                <span class="legend-indicator" style="background: var(--primary); color: var(--primary);"></span>
+                <span>Net ZDMINC Profit</span>
+              </div>
+              <div id="val-legend-margin" class="legend-val" style="color: var(--primary);">BDS $4,800</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DYNAMIC PIPELINE CLIENT STACK -->
+        <div style="margin-bottom: 40px;">
+          <div style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 16px;">
+            PIPELINE TARGET ASSIGNMENTS
+          </div>
+          <div id="clientGrid" class="client-grid"></div>
+        </div>
+
+        <!-- REVENUE CARDS MATRIX -->
+        <div class="results-grid">
+          <div class="result-card">
+            <div class="card-label">MONTHLY RECURRING REV</div>
+            <div id="mrr-val" class="result-card-val" style="color: var(--green);">BDS $9,000</div>
+          </div>
+          
+          <div class="result-card">
+            <div class="card-label">LAUNCH BUILD REVENUE</div>
+            <div id="launch-val" class="result-card-val" style="color: var(--primary);">BDS $27,000</div>
+          </div>
+          
+          <div class="result-card">
+            <div class="card-label">TOTAL CONTRACT VALUE</div>
+            <div id="total-val" class="result-card-val">BDS $135,000</div>
+          </div>
+          
+          <div class="result-card" style="background: var(--primary-glow); border-color: rgba(200, 255, 0, 0.2);">
+            <div class="card-label" style="color: var(--primary);">EST. YEAR-ONE NET MARGIN</div>
+            <div id="margin-val" class="result-card-val" style="color: var(--primary);">BDS $76,800</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- WHY WE WIN ---------- -->
+  <section>
+    <div class="container">
+      <div class="eyebrow gold">Analysis · Technical Moat</div>
+      
+      <div class="win-grid">
+        <div class="win-card">
+          <div class="win-num">01</div>
+          <div>
+            <h4 style="font-family: var(--font-display); font-weight: 400; font-size: 22px; color: var(--text); letter-spacing: 0.01em; text-transform: uppercase;">Pre-Built Architecture</h4>
+            <p style="font-size: 13.5px; color: var(--text-muted); line-height: 1.6; margin-top: 8px;">Landing layouts, Stripe checkouts, Brevo automations, and AI dashboards are already fully operational. We focus on assembly and customization, not greenfield engineering.</p>
+          </div>
+        </div>
+        
+        <div class="win-card">
+          <div class="win-num">02</div>
+          <div>
+            <h4 style="font-family: var(--font-display); font-weight: 400; font-size: 22px; color: var(--text); letter-spacing: 0.01em; text-transform: uppercase;">Direct Spend Inclusion</h4>
+            <p style="font-size: 13.5px; color: var(--text-muted); line-height: 1.6; margin-top: 8px;">Including BDS $600/mo of direct ad spend within the retainer reduces friction during sales conversations, shifting client focus from cost to direct campaign impact.</p>
+          </div>
+        </div>
+        
+        <div class="win-card">
+          <div class="win-num">03</div>
+          <div>
+            <h4 style="font-family: var(--font-display); font-weight: 400; font-size: 22px; color: var(--text); letter-spacing: 0.01em; text-transform: uppercase;">Compounding Efficiency</h4>
+            <p style="font-size: 13.5px; color: var(--text-muted); line-height: 1.6; margin-top: 8px;">The first client build takes standard setup periods. Subsequent implementations reuse the core codebase, reducing marginal setup costs and increasing profitability.</p>
+          </div>
+        </div>
+        
+        <div class="win-card">
+          <div class="win-num">04</div>
+          <div>
+            <h4 style="font-family: var(--font-display); font-weight: 400; font-size: 22px; color: var(--text); letter-spacing: 0.01em; text-transform: uppercase;">Validated Sales Channel</h4>
+            <p style="font-size: 13.5px; color: var(--text-muted); line-height: 1.6; margin-top: 8px;">Existing web design and ad management accounts act as warm leads. We pitch existing clients using direct demo structures before expanding outreach.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- 30-DAY PLAN ---------- -->
+  <section style="border-bottom: none; padding-bottom: 120px;">
+    <div class="container">
+      <div class="eyebrow coral">Execution · First 30 Days</div>
+      
+      <div class="plan-grid">
+        <div class="plan-week">
+          <div class="plan-week-num">WEEK 1</div>
+          <p class="plan-item"><span>— </span>Finalize core landing templates and tracking hooks.</p>
+          <p class="plan-item"><span>— </span>Establish automated webhook triggers in n8n/Make.</p>
+        </div>
+        
+        <div class="plan-week">
+          <div class="plan-week-num">WEEK 2</div>
+          <p class="plan-item"><span>— </span>Configure the primary marketing email flows in Brevo.</p>
+          <p class="plan-item"><span>— </span>Set up the automated Claude report dashboard prompt.</p>
+        </div>
+
+        <div class="plan-week">
+          <div class="plan-week-num">WEEK 3</div>
+          <p class="plan-item"><span>— </span>Run local demo campaigns using internally owned test assets.</p>
+          <p class="plan-item"><span>— </span>Compile specific marketing collateral and pitch decks.</p>
+        </div>
+
+        <div class="plan-week" style="background: rgba(200, 255, 0, 0.01); border-color: rgba(200, 255, 0, 0.25);">
+          <div class="plan-week-num" style="color: var(--primary);">WEEK 4</div>
+          <p class="plan-item" style="color: var(--text);"><span>— </span>Pitch 5 warm prospects at founder pricing rates.</p>
+          <p class="plan-item" style="color: var(--text);"><span>— </span>Secure 2 active clients to reach BDS $9,000 build fees.</p>
+        </div>
+      </div>
+
+      <!-- Closing Callout Banner -->
+      <div class="closing-banner">
+        <div>
+          <h3 class="banner-title">Two closures in month one covers setup.</h3>
+          <p class="banner-desc">Securing just two active accounts yields BDS $9,000 in build fees and starts BDS $3,000/mo in recurring revenue. Each additional client scales with higher margin efficiency.</p>
+        </div>
+        <button class="banner-btn" onclick="alert('System configured. Ready for deployment.')">LET'S BUILD IT →</button>
+      </div>
+      
+      <div style="font-family: var(--font-mono); font-size: 11px; color: var(--text-dark); margin-top: 48px; text-align: center; letter-spacing: 0.05em;">
+        ZDMINC · Launch → Insight · Partner brief 2026
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Custom cursor movement script from agency site
+    const dot = document.getElementById('cursor-dot');
+    const ring = document.getElementById('cursor-ring');
+    
+    document.addEventListener('mousemove', (e) => {
+      dot.style.left = e.clientX + 'px';
+      dot.style.top = e.clientY + 'px';
+      
+      // Delay ring lag slightly
+      setTimeout(() => {
+        ring.style.left = e.clientX + 'px';
+        ring.style.top = e.clientY + 'px';
+      }, 50);
+    });
+
+    // Make custom cursor interactive with buttons and sliders
+    const hoverElements = document.querySelectorAll('input[type=range], button, a, .client-node');
+    hoverElements.forEach(el => {
+      el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+      el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+    });
+
+
+    const CLIENT_NAMES = [
+      { name: "Island Motors", type: "Car Dealership" },
+      { name: "Sandy Ridge Villas", type: "Villa Rentals" },
+      { name: "Nectar Botanical", type: "FMCG Brand" },
+      { name: "Coral Reef Safaris", type: "Luxury Charters" },
+      { name: "West Coast Spa", type: "Wellness Center" },
+      { name: "Bajan Bites", type: "Artisanal Foods" },
+      { name: "Horizon Real Estate", type: "Property Agency" },
+      { name: "Platinum Retail", type: "Luxury Boutique" },
+      { name: "Arawak Home Decor", type: "Furniture Brand" },
+      { name: "Tropix Festival", type: "Event Experience" },
+      { name: "Sugar Reef Resort", type: "Boutique Hotel" },
+      { name: "Caribbean Cargo", type: "Logistics Hub" },
+      { name: "Solar Barbados", type: "Energy Firm" },
+      { name: "Sandy Bay Marina", type: "Yacht Charters" },
+      { name: "Platinum Auto", type: "Luxury Vehicles" }
+    ];
+
+    const slider = document.getElementById('clientSlider');
+    const grid = document.getElementById('clientGrid');
+
+    // Create the grid slots once
+    for (let i = 0; i < 15; i++) {
+      const node = document.createElement('div');
+      node.id = `slot-${i}`;
+      
+      node.innerHTML = `
+        <div class="client-node-slot">
+          <span>SLOT ${String(i + 1).padStart(2, "0")}</span>
+          <span id="slot-status-${i}">VACANT</span>
+        </div>
+        <div id="slot-name-${i}" class="client-node-name">Pitch Pipeline</div>
+        <div id="slot-type-${i}" class="client-node-type">BDS $1,500/mo</div>
+      `;
+      
+      grid.appendChild(node);
+    }
+
+    function money(n) {
+      return "BDS $" + n.toLocaleString();
+    }
+
+    function updateValues() {
+      const clients = parseInt(slider.value);
+      
+      // Update header texts
+      document.getElementById('clients-count-text').innerText = `${clients} Active Clients`;
+      document.getElementById('clients-heading-count').innerText = `${clients} client${clients > 1 ? 's' : ''}`;
+      
+      // Calculations
+      const mrr = clients * 1500;
+      const launch = clients * 4500;
+      const total = launch + mrr * 12;
+      const margin = clients * 800 * 12 + clients * 3200;
+      
+      document.getElementById('mrr-val').innerText = money(mrr);
+      document.getElementById('launch-val').innerText = money(launch);
+      document.getElementById('total-val').innerText = money(total);
+      document.getElementById('margin-val').innerText = money(margin);
+      
+      // Split calculations
+      const adsVal = clients * 600;
+      const toolsVal = clients * 100;
+      const marginVal = clients * 800;
+      
+      const adsWidth = (adsVal / mrr) * 100;
+      const toolsWidth = (toolsVal / mrr) * 100;
+      const marginWidth = (marginVal / mrr) * 100;
+      
+      // Chart
+      document.getElementById('bar-ads').style.width = adsWidth + '%';
+      document.getElementById('bar-tools').style.width = toolsWidth + '%';
+      document.getElementById('bar-margin').style.width = marginWidth + '%';
+
+      // Legend values
+      document.getElementById('val-legend-ads').innerText = money(adsVal);
+      document.getElementById('val-legend-tools').innerText = money(toolsVal);
+      document.getElementById('val-legend-margin').innerText = money(marginVal) + '/mo';
+
+      // Margin percentage
+      const profitMarginPct = Math.round((marginVal / mrr) * 100);
+      document.getElementById('profit-percent-text').innerText = `Net Profit Margin: ${profitMarginPct}%`;
+
+      // Update grid slot styling
+      for (let i = 0; i < 15; i++) {
+        const slot = document.getElementById(`slot-${i}`);
+        const status = document.getElementById(`slot-status-${i}`);
+        const name = document.getElementById(`slot-name-${i}`);
+        const type = document.getElementById(`slot-type-${i}`);
+        
+        if (i < clients) {
+          slot.className = 'client-node active';
+          status.innerText = 'CLOSED';
+          status.style.color = 'var(--primary)';
+          name.innerText = CLIENT_NAMES[i].name;
+          type.innerText = CLIENT_NAMES[i].type;
+        } else {
+          slot.className = 'client-node';
+          status.innerText = 'VACANT';
+          status.style.color = 'var(--text-dark)';
+          name.innerText = 'Pitch Pipeline';
+          type.innerText = 'BDS $1,500/mo';
+        }
+      }
+    }
+
+    slider.addEventListener('input', updateValues);
+    updateValues(); // Trigger first time
+
+    // Case Study vertical switcher
+    function setCaseStudy(url, title, desc, btn) {
+      document.getElementById('case-study-iframe').src = url;
+      document.getElementById('external-preview-link').href = url;
+      document.getElementById('case-study-title').innerText = title;
+      document.getElementById('case-study-desc').innerText = desc;
+      
+      // Reset styles on all vertical tabs
+      btn.parentElement.querySelectorAll('button').forEach(b => {
+        b.style.background = 'transparent';
+        b.style.borderColor = 'rgba(200, 255, 0, 0.3)';
+        b.style.color = 'var(--primary)';
+      });
+      
+      // Set active highlight on clicked tab
+      btn.style.background = 'rgba(200, 255, 0, 0.08)';
+      btn.style.borderColor = 'var(--primary)';
+      btn.style.color = '#FFF';
+    }
+
+    // Dynamic Hero Copy Data
+    const HERO_DATA = [
+      {
+        title: 'Every car launch in Barbados<br>needs this package. <span>Nobody else sells it.</span>',
+        desc: `Move luxury automotive inventory off your lot in weeks. ZDMINC's <strong>Launch → Insight</strong> package bundles custom landing layouts, test-drive webhooks, automated email sequences, Meta ad spend, and AI performance dashboards. One fee. One retainer. One invoice.`
+      },
+      {
+        title: 'Every product drop in Barbados<br>needs this package. <span>Nobody else sells it.</span>',
+        desc: `Launch your new product lines with a high-conversion sales funnel. ZDMINC's <strong>Launch → Insight</strong> package bundles elegant purchase checkouts, automated shopping cart recovery, targeted social ads, and performance metrics dashboards. One fee. One retainer. One invoice.`
+      },
+      {
+        title: 'Every luxury villa in Barbados<br>needs this package. <span>Nobody else sells it.</span>',
+        desc: `Fill your rooms and yacht charter slots during the slow season. ZDMINC's <strong>Launch → Insight</strong> package bundles booking intake pages, automatic itinerary emails, local operator SMS logs, Meta ads, and unified AI metrics. One fee. One retainer. One invoice.`
+      }
+    ];
+
+    function setHeroAudience(index) {
+      const titleEl = document.getElementById('hero-dynamic-title');
+      const descEl = document.getElementById('hero-dynamic-desc');
+      
+      // Highlight the selected hero tab
+      for (let i = 0; i < 3; i++) {
+        const tab = document.getElementById('hero-tab-' + i);
+        if (i === index) {
+          tab.style.background = 'rgba(200, 255, 0, 0.08)';
+          tab.style.borderColor = 'var(--primary)';
+          tab.style.color = '#FFF';
+        } else {
+          tab.style.background = 'transparent';
+          tab.style.borderColor = 'rgba(200, 255, 0, 0.3)';
+          tab.style.color = 'var(--primary)';
+        }
+      }
+      
+      // Cross-fade opacity animation
+      titleEl.style.opacity = '0';
+      descEl.style.opacity = '0';
+      
+      setTimeout(() => {
+        titleEl.innerHTML = HERO_DATA[index].title;
+        descEl.innerHTML = HERO_DATA[index].desc;
+        titleEl.style.opacity = '1';
+        descEl.style.opacity = '1';
+      }, 150);
+
+      // Trigger the corresponding case study switcher
+      const csTab = document.getElementById('cs-tab-' + index);
+      if (csTab) {
+        csTab.click();
+      }
+    }
+  </script>
+</body>
+</html>
