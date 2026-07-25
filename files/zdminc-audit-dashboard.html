@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZDMINC · Audit Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0A0A0A; /* ZDM background */
+    --panel:rgba(20, 20, 20, 0.65); /* ZDM card background */
+    --panel-hi:rgba(200, 255, 0, 0.08); /* ZDM Lime Green glow */
+    --line:rgba(200, 255, 0, 0.08); /* ZDM borders */
+    --teal:#C8FF00; /* ZDM Lime Green primary */
+    --amber:#FF3366; /* ZDM Hot Coral Pink secondary */
+    --gold:#C5A880; /* ZDM Gold */
+    --paper:#F5F5F0; /* ZDM primary light text */
+    --muted:#888888; /* ZDM muted gray */
+    --red:#FF3366; /* Map error state to ZDM Hot Coral Pink */
+    --green:#10B981; /* Map success state to Emerald Green */
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background-color: var(--ink);
+    color:var(--paper);
+    font-family:'DM Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    line-height:1.5;
+    overflow-x:hidden;
+    cursor:none; /* Brand custom cursor */
+  }
+
+  /* Custom Cursor elements matching ZDM specs */
+  #cursor-dot {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--teal);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.05s, width 0.2s, height 0.2s, opacity 0.2s;
+    mix-blend-mode: difference;
+  }
+  #cursor-ring {
+    position: fixed;
+    width: 40px; height: 40px;
+    border: 1.5px solid var(--teal);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.12s cubic-bezier(0.23,1,0.32,1), width 0.3s, height 0.3s, opacity 0.3s;
+    mix-blend-mode: difference;
+  }
+  body.cursor-hover #cursor-dot { width: 12px; height: 12px; }
+  body.cursor-hover #cursor-ring { width: 60px; height: 60px; opacity: 0.5; }
+
+  /* Noise overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0.025;
+    pointer-events: none;
+    z-index: 9997;
+  }
+
+  /* Ambient background glows */
+  .glow-blob-1 {
+    position: absolute;
+    top: -10%;
+    left: 10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(200, 255, 0, 0.04) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .glow-blob-2 {
+    position: absolute;
+    bottom: 10%;
+    right: -10%;
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(200, 255, 0, 0.02) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Grid lines */
+  .grid-lines {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 1200px;
+    margin: 0 auto;
+    border-left: 1px solid rgba(200, 255, 0, 0.015);
+    border-right: 1px solid rgba(200, 255, 0, 0.015);
+    z-index: 0;
+  }
+  .grid-line {
+    border-right: 1px solid rgba(200, 255, 0, 0.015);
+    height: 100%;
+  }
+
+  .mono{font-family:'DM Mono',monospace;}
+  
+  .display{
+    font-family:'Bebas Neue', 'Impact', sans-serif;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  /* ---- Top bar ---- */
+  header{
+    display:flex; align-items:center; gap:16px; padding:20px 28px;
+    border-bottom:1px solid var(--line); position:sticky; top:0; z-index:20;
+    background:rgba(10,10,10,0.85); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  }
+  .logo{display:flex; align-items:center; gap:12px;}
+  .logo-mark{
+    width:34px; height:34px; border-radius:4px; background:rgba(255,255,255,0.02);
+    border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
+  }
+  .logo-mark svg{width:18px; height:18px;}
+  .logo b{
+    font-family:'Bebas Neue', 'Impact', sans-serif;
+    font-size:22px; font-weight:400; letter-spacing:0.02em;
+    text-transform: uppercase; color: var(--paper); line-height: 1;
+  }
+  .logo span{font-family:'DM Mono'; font-size:11px; color:var(--muted); display:block; letter-spacing:0.08em; text-transform:uppercase; margin-top:2px;}
+  
+  .conn{
+    margin-left:auto; display:flex; align-items:center; gap:8px;
+    font-family:'DM Mono'; font-size:11px; padding:7px 14px; border-radius:4px;
+    border:1px solid var(--line); background:var(--panel); text-transform:uppercase;
+  }
+  .conn .dot{width:6px; height:6px; border-radius:50%; background:var(--amber);
+    box-shadow:0 0 0 3px rgba(255,51,102,0.15);}
+  .conn.live .dot{background:var(--teal); box-shadow:0 0 0 3px rgba(200, 255, 0, 0.15);}
+
+  .wrap{max-width:1120px; margin:0 auto; padding:28px; position:relative; z-index:10;}
+  .cols{display:grid; grid-template-columns:340px 1fr; gap:28px; align-items:start;}
+
+  /* ---- New audit panel ---- */
+  .panel{
+    background:var(--panel); border:1px solid var(--line); border-radius:4px;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  }
+  .panel-title{
+    padding:18px 20px; border-bottom:1px solid var(--line);
+    font-family:'Bebas Neue', 'Impact', sans-serif; font-size:20px; font-weight:400;
+    display:flex; align-items:center; gap:9px; letter-spacing:0.02em; text-transform:uppercase;
+  }
+  .panel-title svg{width:16px; height:16px;}
+  .form{padding:18px 20px;}
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block; font-family:'DM Mono'; font-size:10px; letter-spacing:0.08em;
+    text-transform:uppercase; color:var(--muted); margin-bottom:6px;
+  }
+  .field input, .field textarea{
+    width:100%; background:rgba(255, 255, 255, 0.02); border:1px solid var(--line); border-radius:4px;
+    padding:9px 11px; color:var(--paper); font-family:'DM Sans'; font-size:13px; outline:none;
+    transition:border-color .15s;
+  }
+  .field input:focus, .field textarea:focus{border-color:var(--teal);}
+  .field textarea{resize:vertical; min-height:52px;}
+  .field .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  
+  .run-btn{
+    width:100%; margin-top:6px; background:var(--teal); color:var(--ink); border:none;
+    border-radius:4px; padding:12px; font-family:'Bebas Neue', 'Impact', sans-serif;
+    font-weight:400; font-size:18px; letter-spacing:0.02em; text-transform:uppercase;
+    cursor:pointer; transition:opacity .15s, transform .05s; display:flex; align-items:center;
+    justify-content:center; gap:8px;
+  }
+  .run-btn:hover{opacity:0.9;}
+  .run-btn:active{transform:translateY(1px);}
+  .run-btn:disabled{opacity:0.45; cursor:not-allowed;}
+
+  /* ---- Jobs area ---- */
+  .jobs-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
+  .jobs-head h2{
+    font-family:'Bebas Neue', 'Impact', sans-serif;
+    font-size:26px; font-weight:400; letter-spacing:0.02em; text-transform:uppercase;
+  }
+  .jobs-head .count{font-family:'DM Mono'; font-size:11px; color:var(--muted); text-transform:uppercase;}
+  .jobs{display:flex; flex-direction:column; gap:14px;}
+
+  .job{
+    background:var(--panel); border:1px solid var(--line); border-radius:4px; padding:22px;
+    transition:border-color .2s; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  }
+  .job:hover{border-color:rgba(200, 255, 0, 0.15);}
+  .job.ready{border-color:rgba(200, 255, 0, 0.4);}
+  .job.failed{border-color:rgba(255, 51, 102, 0.4);}
+  .job-top{display:flex; align-items:flex-start; gap:14px;}
+  
+  .job-id{
+    font-family:'DM Mono'; font-size:10px; color:var(--muted);
+    background:rgba(255,255,255,0.02); border:1px solid var(--line); border-radius:4px; padding:3px 8px; flex-shrink:0;
+  }
+  .job-main{flex:1; min-width:0;}
+  .job-client{
+    font-family:'Bebas Neue', 'Impact', sans-serif; font-size:22px; font-weight:400;
+    letter-spacing:0.02em; text-transform:uppercase; color: var(--paper); line-height:1.1;
+  }
+  .job-url{font-family:'DM Mono'; font-size:11.5px; color:var(--teal); text-decoration:none; word-break:break-all;}
+  .job-url:hover{text-decoration:underline;}
+  .job-meta{font-size:12.5px; color:var(--muted); margin-top:4px;}
+  .job-time{font-family:'DM Mono'; font-size:11px; color:var(--muted); flex-shrink:0;}
+
+  /* ---- Pipeline strip ---- */
+  .strip{display:flex; align-items:center; gap:0; margin:16px 0 4px;}
+  .stage{flex:1; display:flex; align-items:center;}
+  .stage .node{
+    width:22px; height:22px; border-radius:50%; border:1.5px solid var(--line);
+    background:var(--ink); display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    position:relative; transition:all .3s;
+  }
+  .stage .node svg{width:11px; height:11px; opacity:0;}
+  .stage .bar{flex:1; height:2px; background:var(--line); transition:background .3s;}
+  .stage:last-child{flex:0;}
+  .stage.done .node{background:var(--teal); border-color:var(--teal);}
+  .stage.done .node svg{opacity:1;}
+  .stage.done .bar{background:var(--teal);}
+  .stage.active .node{
+    border-color:var(--teal); background:var(--panel-hi);
+    box-shadow:0 0 0 4px rgba(200, 255, 0, 0.12); animation:pulse 1.4s ease-in-out infinite;
+  }
+  .stage.active .node::after{
+    content:''; width:7px; height:7px; border-radius:50%; background:var(--teal);
+    animation:blink 1.4s ease-in-out infinite;
+  }
+  .stage.fail .node{border-color:var(--red); background:var(--panel-hi);}
+  .stage.fail .node::after{content:'!'; color:var(--red); font-weight:700; font-size:12px; font-family:'Bebas Neue';}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(200, 255, 0, 0.12);}50%{box-shadow:0 0 0 7px rgba(200, 255, 0, 0.04);}}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.4;}}
+  .strip-labels{display:flex; gap:0; margin-top:8px;}
+  .strip-labels span{
+    flex:1; font-family:'DM Mono'; font-size:9.5px; letter-spacing:0.03em; color:var(--muted);
+    text-align:left; text-transform:uppercase;
+  }
+  .strip-labels span.on{color:var(--teal);}
+
+  .job-foot{display:flex; align-items:center; gap:10px; margin-top:14px;}
+  .status-pill{
+    font-family:'DM Mono'; font-size:10px; padding:4px 10px; border-radius:4px;
+    border:1px solid var(--line); color:var(--muted); text-transform:uppercase;
+  }
+  .status-pill.ready{color:var(--green); border-color:rgba(16, 185, 129, 0.4); background:rgba(16, 185, 129, 0.06);}
+  .status-pill.failed{color:var(--red); border-color:rgba(255, 51, 102, 0.4); background:rgba(255, 51, 102, 0.06);}
+  .status-pill.running{color:var(--amber); border-color:rgba(255, 51, 102, 0.4);}
+  
+  .view-btn{
+    margin-left:auto; background:var(--panel-hi); border:1px solid var(--line); color:var(--paper);
+    border-radius:4px; padding:7px 14px; font-family:'Bebas Neue', 'Impact', sans-serif;
+    font-weight:400; font-size:15px; letter-spacing:0.02em; text-transform:uppercase;
+    cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px;
+    transition:border-color .15s;
+  }
+  .view-btn:hover{border-color:var(--teal);}
+  .view-btn svg{width:13px; height:13px;}
+  
+  .job-err{
+    margin-top:12px; font-family:'DM Mono'; font-size:11px; color:var(--red);
+    background:rgba(255, 51, 102, 0.04); border:1px solid rgba(255, 51, 102, 0.2);
+    border-radius:4px; padding:9px 11px;
+  }
+
+  /* ---- expandable summary ---- */
+  .summary{
+    margin-top:14px; padding-top:14px; border-top:1px solid var(--line);
+    display:none;
+  }
+  .job.expanded .summary{display:block;}
+  .summary p{font-size:13.5px; color:var(--muted); margin-bottom:12px; line-height:1.6;}
+  .summary .chips{display:flex; gap:8px; flex-wrap:wrap;}
+  .chip{
+    font-family:'DM Mono'; font-size:10px; padding:5px 10px; border-radius:4px;
+    background:var(--ink); border:1px solid var(--line); text-transform:uppercase;
+  }
+  .chip b{color:var(--teal);}
+  .expand-toggle{
+    background:none; border:none; color:var(--muted); font-family:'DM Mono'; font-size:10.5px;
+    cursor:pointer; padding:0; margin-top:10px; display:inline-flex; align-items:center; gap:5px;
+    text-transform:uppercase; letter-spacing:0.05em;
+  }
+  .expand-toggle:hover{color:var(--paper);}
+  .expand-toggle svg{width:11px; height:11px; transition:transform .2s;}
+  .job.expanded .expand-toggle svg{transform:rotate(180deg);}
+
+  .empty{text-align:center; padding:60px 20px; color:var(--muted);}
+  .empty svg{width:40px; height:40px; opacity:0.4; margin-bottom:14px;}
+
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--panel); border:1px solid var(--teal); color:var(--paper);
+    padding:12px 20px; border-radius:4px; font-size:13.5px; opacity:0; pointer-events:none;
+    transition:all .3s; z-index:50; display:flex; align-items:center; gap:9px;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  .toast svg{width:16px; height:16px; color:var(--teal);}
+
+  .demo-note{
+    font-family:'DM Mono'; font-size:10.5px; color:var(--muted); text-align:center;
+    padding:16px; border-top:1px solid var(--line); margin-top:8px; text-transform:uppercase;
+    line-height:1.5;
+  }
+  .demo-note b{color:var(--amber);}
+
+  @media (max-width:820px){
+    .cols{grid-template-columns:1fr;}
+    .strip-labels{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor Elements -->
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<!-- Ambient Glows & Grid Lines -->
+<div class="glow-blob-1"></div>
+<div class="glow-blob-2"></div>
+
+<div class="grid-lines">
+  <div class="grid-line"></div>
+  <div class="grid-line"></div>
+  <div class="grid-line"></div>
+</div>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#C8FF00" stroke-width="1.7"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    </div>
+    <div>
+      <b>ZDMINC Audit Engine</b>
+      <span>OPERATIONS CONSOLE</span>
+    </div>
+  </div>
+  <div class="conn" id="conn"><span class="dot"></span><span id="conn-label">DEMO MODE</span></div>
+</header>
+
+<div class="wrap">
+  <div class="cols">
+
+    <!-- New audit -->
+    <div class="panel">
+      <div class="panel-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#C8FF00" stroke-width="1.7"><path d="M12 5v14M5 12h14"/></svg>
+        Run new audit
+      </div>
+      <div class="form" id="form">
+        <div class="field"><label>Client name</label><input id="f-name" placeholder="Grease Trap Man"></div>
+        <div class="field"><label>Client email</label><input id="f-email" placeholder="owner@example.com"></div>
+        <div class="field"><label>Website URL</label><input id="f-url" placeholder="https://greasetrapman.com"></div>
+        <div class="field"><div class="row2">
+          <div><label>Industry</label><input id="f-industry" placeholder="Plumbing services"></div>
+          <div><label>Market</label><input id="f-market" placeholder="Barbados"></div>
+        </div></div>
+        <div class="field"><label>Competitors (comma-separated)</label><input id="f-comp" placeholder="https://competitor.com"></div>
+        <div class="field"><label>Goals</label><textarea id="f-goals" placeholder="More inbound leads from Google"></textarea></div>
+        <div class="field"><label>Pain points</label><textarea id="f-pain" placeholder="Slow site, not ranking"></textarea></div>
+        <div class="field"><label>Max pages to crawl</label><input id="f-max" type="number" value="80"></div>
+        <button class="run-btn" id="run-btn" onclick="submitAudit()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg>
+          Run audit — $600
+        </button>
+      </div>
+      <div class="demo-note">
+        <b>Demo mode</b> — audits simulate here. Set <b>CONFIG.demoMode = false</b> and add your function URLs to go live.
+      </div>
+    </div>
+
+    <!-- Jobs -->
+    <div>
+      <div class="jobs-head">
+        <h2>Audit jobs</h2>
+        <span class="count" id="count">0 jobs</span>
+      </div>
+      <div class="jobs" id="jobs"></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span id="toast-msg"></span></div>
+
+<script>
+/* ============================================================
+   CONFIG — flip to live in three lines
+   ============================================================ */
+const CONFIG = {
+  demoMode: true,                        // set false to hit real functions
+  webhookUrl: "https://REGION-PROJECT.cloudfunctions.net/intakeWebhook",
+  jobsApiUrl: "https://REGION-PROJECT.cloudfunctions.net/jobsApi",
+  webhookSecret: "YOUR_WEBHOOK_SECRET",  // same value you set with firebase functions:secrets:set
+  pollMs: 4000,
+};
+
+/* ---- Pipeline stages (must match the backend status values) ---- */
+const STAGES = [
+  { key: "queued",            label: "Queued"   },
+  { key: "crawling",          label: "Crawl"    },
+  { key: "api_checks",        label: "API"      },
+  { key: "analyzing",         label: "Analysis" },
+  { key: "rendering",         label: "Report"   },
+  { key: "ready_for_review",  label: "Ready"    },
+];
+const stageIndex = (s) => STAGES.findIndex((x) => x.key === s);
+
+/* ============================================================
+   DEMO ENGINE — seeded jobs + simulated progression
+   ============================================================ */
+const demoAnalysis = {
+  executiveSummary: "The site has a solid service-page foundation but is losing organic visibility to slow mobile load times and thin technical SEO. Several quick wins could lift rankings within a month, with security hardening the priority foundational fix.",
+  quickWins: [
+    { title: "Add meta descriptions to 14 pages", category: "SEO" },
+    { title: "Compress hero images (est. 2.1s saved)", category: "Performance" },
+    { title: "Fix 3 broken internal links", category: "SEO" },
+  ],
+  foundationalFixes: [
+    { title: "Enable HSTS + CSP headers", category: "Security" },
+    { title: "Restructure service page URLs", category: "SEO" },
+  ],
+  growthOpportunities: [
+    { title: "Local landing pages per parish", category: "Content" },
+  ],
+};
+
+let jobs = [];
+let seq = 4821;
+
+function seedDemo(){
+  jobs = [
+    { id:"aud_"+(seq++), status:"ready_for_review", siteUrl:"https://greasetrapman.com",
+      client:{name:"Grease Trap Man", industry:"Commercial plumbing", market:"Barbados"},
+      createdAt: Date.now()-1000*60*42, reportUrl:"#demo-report", analysis:demoAnalysis,
+      steps:{crawl:{pagesCrawled:63, brokenLinks:3, missingMeta:14}} },
+    { id:"aud_"+(seq++), status:"analyzing", siteUrl:"https://septicsolutionscaribbean.com",
+      client:{name:"Septic Solutions Caribbean", industry:"Septic services", market:"Caribbean"},
+      createdAt: Date.now()-1000*60*4, _sim:true },
+    { id:"aud_"+(seq++), status:"failed", siteUrl:"https://unreachable-site.com",
+      client:{name:"Test Prospect", industry:"Retail", market:"Barbados"},
+      createdAt: Date.now()-1000*60*90, error:"Crawl failed: site unreachable (timeout after 30s)" },
+  ];
+}
+
+/* advance any simulated job through the pipeline for a lifelike feel */
+function tickDemo(){
+  let changed = false;
+  for (const j of jobs){
+    if (!j._sim) continue;
+    const i = stageIndex(j.status);
+    if (i < STAGES.length - 1){
+      j.status = STAGES[i+1].key;
+      changed = true;
+      if (j.status === "ready_for_review"){
+        j.reportUrl = "#demo-report";
+        j.analysis = demoAnalysis;
+        j._sim = false;
+        j.steps = { crawl:{ pagesCrawled: 40 + Math.floor(Math.random()*50), brokenLinks: Math.floor(Math.random()*5), missingMeta: Math.floor(Math.random()*18) } };
+        toast(j.client.name + " audit ready for review");
+      }
+    }
+  }
+  if (changed) render();
+}
+
+/* ============================================================
+   LIVE ENGINE
+   ============================================================ */
+async function fetchLiveJobs(){
+  try{
+    const r = await fetch(CONFIG.jobsApiUrl + "?action=list", {
+      headers: { "x-webhook-secret": CONFIG.webhookSecret },
+    });
+    if (!r.ok) throw new Error("jobsApi " + r.status);
+    const data = await r.json();
+    jobs = (data.jobs || []).map(j => ({ ...j, createdAt: j.createdAt ? Date.parse(j.createdAt) : Date.now() }));
+    render();
+  }catch(e){ console.error(e); }
+}
+
+/* ============================================================
+   SUBMIT
+   ============================================================ */
+async function submitAudit(){
+  const url = val("f-url"), email = val("f-email");
+  if (!url || !email){ toast("Website URL and email are required"); return; }
+  const payload = {
+    clientName: val("f-name"), email, siteUrl: url,
+    industry: val("f-industry"), market: val("f-market"),
+    competitors: val("f-comp").split(",").map(s=>s.trim()).filter(Boolean),
+    goals: val("f-goals"), painPoints: val("f-pain"),
+    maxPages: Number(val("f-max")) || 80,
+  };
+  const btn = document.getElementById("run-btn");
+  btn.disabled = true;
+
+  if (CONFIG.demoMode){
+    const j = { id:"aud_"+(seq++), status:"queued", siteUrl:url,
+      client:{name:payload.clientName||"New client", industry:payload.industry, market:payload.market},
+      createdAt: Date.now(), _sim:true };
+    jobs.unshift(j);
+    render(); toast("Audit queued for " + (payload.clientName || url));
+    clearForm();
+    btn.disabled = false;
+    return;
+  }
+
+  try{
+    const r = await fetch(CONFIG.webhookUrl, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json", "x-webhook-secret": CONFIG.webhookSecret },
+      body: JSON.stringify(payload),
+    });
+    if (!r.ok) throw new Error("Webhook " + r.status);
+    toast("Audit queued"); clearForm();
+    setTimeout(fetchLiveJobs, 800);
+  }catch(e){ toast("Failed: " + e.message); }
+  finally{ btn.disabled = false; }
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function render(){
+  const el = document.getElementById("jobs");
+  document.getElementById("count").textContent = jobs.length + (jobs.length===1?" job":" jobs");
+  if (!jobs.length){
+    el.innerHTML = `<div class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <div>No audits yet. Run one from the panel on the left.</div></div>`;
+    return;
+  }
+  el.innerHTML = jobs.map(renderJob).join("");
+}
+
+function renderJob(j){
+  const i = stageIndex(j.status);
+  const failed = j.status === "failed";
+  const ready = j.status === "ready_for_review";
+  const running = !failed && !ready;
+
+  const stages = STAGES.map((s, idx) => {
+    let cls = "";
+    if (failed){ cls = idx <= (i<0?0:i) ? "" : ""; if (idx === Math.max(i,0)) cls = "fail"; else if (idx < Math.max(i,0)) cls="done"; }
+    else if (idx < i) cls = "done";
+    else if (idx === i) cls = idx === STAGES.length-1 ? "done" : "active";
+    const bar = idx < STAGES.length-1 ? `<div class="bar"></div>` : "";
+    return `<div class="stage ${cls}"><div class="node">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+    </div>${bar}</div>`;
+  }).join("");
+
+  const labels = STAGES.map((s, idx) =>
+    `<span class="${idx<=i && !failed ? 'on':''}">${s.label}</span>`
+  ).join("");
+
+  const pillCls = failed ? "failed" : ready ? "ready" : "running";
+  const pillText = failed ? "Failed" : ready ? "Ready for review" : j.status.replace(/_/g," ");
+
+  const viewBtn = ready && j.reportUrl
+    ? `<a class="view-btn" href="${j.reportUrl}" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3h7v7M10 14L21 3M21 14v5a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h5"/></svg>
+        View report</a>` : "";
+
+  const err = failed && j.error ? `<div class="job-err">${esc(j.error)}</div>` : "";
+
+  const crawl = j.steps?.crawl;
+  const summary = (ready && j.analysis) ? `
+    <button class="expand-toggle" onclick="toggleJob('${j.id}')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      Roadmap preview</button>
+    <div class="summary">
+      <p>${esc(j.analysis.executiveSummary || "")}</p>
+      <div class="chips">
+        ${crawl ? `<div class="chip"><b>${crawl.pagesCrawled}</b> pages</div>` : ""}
+        ${crawl ? `<div class="chip"><b>${crawl.brokenLinks}</b> broken links</div>` : ""}
+        ${crawl ? `<div class="chip"><b>${crawl.missingMeta}</b> missing meta</div>` : ""}
+        <div class="chip"><b>${(j.analysis.quickWins||[]).length}</b> quick wins</div>
+        <div class="chip"><b>${(j.analysis.foundationalFixes||[]).length}</b> foundational</div>
+        <div class="chip"><b>${(j.analysis.growthOpportunities||[]).length}</b> growth plays</div>
+      </div>
+    </div>` : "";
+
+  const expanded = expandedIds.has(j.id) ? "expanded" : "";
+
+  return `<div class="job ${failed?'failed':''} ${ready?'ready':''} ${expanded}" id="job-${j.id}">
+    <div class="job-top">
+      <span class="job-id mono">${j.id}</span>
+      <div class="job-main">
+        <div class="job-client">${esc(j.client?.name || "Untitled")}</div>
+        <a class="job-url" href="${j.siteUrl}" target="_blank" rel="noopener">${esc(j.siteUrl)}</a>
+        <div class="job-meta">${esc(j.client?.industry || "")}${j.client?.market ? " · " + esc(j.client.market) : ""}</div>
+      </div>
+      <span class="job-time mono">${ago(j.createdAt)}</span>
+    </div>
+    <div class="strip">${stages}</div>
+    <div class="strip-labels">${labels}</div>
+    <div class="job-foot">
+      <span class="status-pill ${pillCls}">${esc(pillText)}</span>
+      ${viewBtn}
+    </div>
+    ${err}
+    ${summary}
+  </div>`;
+}
+
+const expandedIds = new Set();
+function toggleJob(id){
+  if (expandedIds.has(id)) expandedIds.delete(id); else expandedIds.add(id);
+  document.getElementById("job-"+id)?.classList.toggle("expanded");
+}
+
+/* ---- helpers ---- */
+function val(id){ return document.getElementById(id).value.trim(); }
+function clearForm(){ ["f-name","f-email","f-url","f-industry","f-market","f-comp","f-goals","f-pain"].forEach(id=>document.getElementById(id).value=""); document.getElementById("f-max").value="80"; }
+function esc(s=""){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function ago(ts){
+  const s = Math.floor((Date.now()-ts)/1000);
+  if (s<60) return s+"s ago";
+  if (s<3600) return Math.floor(s/60)+"m ago";
+  if (s<86400) return Math.floor(s/3600)+"h ago";
+  return Math.floor(s/86400)+"d ago";
+}
+let toastTimer;
+function toast(msg){
+  const t=document.getElementById("toast"); document.getElementById("toast-msg").textContent=msg;
+  t.classList.add("show"); clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove("show"), 3200);
+}
+
+// Custom Cursor tracking
+const dot = document.getElementById('cursor-dot');
+const ring = document.getElementById('cursor-ring');
+
+document.addEventListener('mousemove', (e) => {
+  dot.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+  ring.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+});
+
+function bindHover(element) {
+  element.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+  element.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+}
+
+// Pre-bind static elements
+document.querySelectorAll('a, button, input, textarea').forEach(bindHover);
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+function boot(){
+  const conn = document.getElementById("conn");
+  if (CONFIG.demoMode){
+    seedDemo(); render();
+    setInterval(tickDemo, 2600);
+    setInterval(render, 15000); // refresh relative timestamps
+  } else {
+    conn.classList.add("live");
+    document.getElementById("conn-label").textContent = "LIVE";
+    document.querySelector(".demo-note").style.display = "none";
+    fetchLiveJobs();
+    setInterval(fetchLiveJobs, CONFIG.pollMs);
+  }
+}
+boot();
+</script>
+</body>
+</html>
