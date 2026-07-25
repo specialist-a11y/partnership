@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZDM Agency — Partner Proposal Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0A0A0A;
+      --card-bg: rgba(20, 20, 20, 0.65);
+      --card-border: rgba(200, 255, 0, 0.08);
+      --text: #F5F5F0;
+      --text-muted: #888888;
+      --text-dark: #3A3A3A;
+      
+      --primary: #C8FF00; /* ZDM Lime Green */
+      --primary-dim: #A8D800;
+      --primary-glow: rgba(200, 255, 0, 0.15);
+      --pink: #FF3366;
+      --gold: #C5A880;
+      
+      --font-display: 'Bebas Neue', 'Impact', sans-serif;
+      --font-sans: 'DM Sans', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      overflow-x: hidden;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      cursor: none; /* Custom brand cursor */
+    }
+
+    /* Custom Cursor */
+    #cursor-dot {
+      position: fixed;
+      width: 8px; height: 8px;
+      background: var(--primary);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.05s, width 0.2s, height 0.2s, opacity 0.2s;
+      mix-blend-mode: difference;
+    }
+    #cursor-ring {
+      position: fixed;
+      width: 40px; height: 40px;
+      border: 1.5px solid var(--primary);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.12s cubic-bezier(0.23,1,0.32,1), width 0.3s, height 0.3s, opacity 0.3s;
+      mix-blend-mode: difference;
+    }
+    body.cursor-hover #cursor-dot { width: 12px; height: 12px; }
+    body.cursor-hover #cursor-ring { width: 60px; height: 60px; opacity: 0.5; }
+
+    /* Noise overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.025;
+      pointer-events: none;
+      z-index: 9997;
+    }
+
+    /* Ambient background glows */
+    .glow-blob-1 {
+      position: absolute;
+      top: -10%;
+      left: 10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(200, 255, 0, 0.04) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .glow-blob-2 {
+      position: absolute;
+      bottom: 10%;
+      right: -10%;
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(200, 255, 0, 0.02) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .grid-lines {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      max-width: 1200px;
+      margin: 0 auto;
+      border-left: 1px solid rgba(200, 255, 0, 0.015);
+      border-right: 1px solid rgba(200, 255, 0, 0.015);
+      z-index: 0;
+    }
+    
+    .grid-line {
+      border-right: 1px solid rgba(200, 255, 0, 0.015);
+      height: 100%;
+    }
+
+    .container {
+      max-width: 1020px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 10;
+    }
+
+    header {
+      padding: 120px 0 60px;
+      border-bottom: 1px solid rgba(200, 255, 0, 0.06);
+    }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 500;
+      color: var(--primary);
+      text-shadow: 0 0 10px rgba(200, 255, 0, 0.2);
+    }
+
+    .eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: clamp(48px, 7vw, 76px);
+      color: var(--text);
+      line-height: 0.95;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+    }
+
+    .hero-title span {
+      color: var(--primary);
+      text-shadow: 0 0 20px rgba(200, 255, 0, 0.15);
+    }
+
+    .hero-desc {
+      color: var(--text-muted);
+      font-size: 16px;
+      max-width: 700px;
+      line-height: 1.75;
+      margin-top: 24px;
+    }
+
+    /* Proposal Navigation Grid */
+    .proposals-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-top: 60px;
+      margin-bottom: 120px;
+    }
+
+    .proposal-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 40px 32px;
+      border-radius: 4px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      position: relative;
+    }
+
+    .proposal-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 4px;
+      background: linear-gradient(135deg, rgba(200, 255, 0, 0.04) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+
+    .proposal-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 15px 35px rgba(200, 255, 0, 0.05);
+      transform: translateY(-3px);
+    }
+
+    .proposal-card:hover::before {
+      opacity: 1;
+    }
+
+    .card-top {
+      margin-bottom: 30px;
+    }
+
+    .card-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+
+    .proposal-card:hover .card-tag {
+      color: var(--primary);
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 400;
+      color: var(--text);
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .card-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-top: 16px;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .btn-card {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid rgba(200, 255, 0, 0.3);
+      padding: 10px 18px;
+      border-radius: 4px;
+      background: rgba(200, 255, 0, 0.02);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s;
+    }
+
+    .btn-card:hover {
+      background: var(--primary-glow);
+      border-color: var(--primary);
+      color: #FFF;
+    }
+
+    .btn-card.secondary {
+      border-color: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text);
+    }
+
+    .btn-card.secondary:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    footer {
+      padding: 60px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-dark);
+      letter-spacing: 0.1em;
+    }
+
+    footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    footer a:hover {
+      color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom Cursor Elements -->
+  <div id="cursor-dot"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- Background Glow & Grid Lines -->
+  <div class="glow-blob-1"></div>
+  <div class="glow-blob-2"></div>
+  
+  <div class="grid-lines">
+    <div class="grid-line"></div>
+    <div class="grid-line"></div>
+    <div class="grid-line"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <div class="eyebrow">ZDM PARTNERSHIP PORTAL</div>
+      <h1 class="hero-title">
+        Interactive <span>Proposals</span> Navigator.
+      </h1>
+      <p class="hero-desc">
+        Explore high-fidelity designs, micro-animations, and lead-ingestion webhook simulators compiled for our client pitch. Select a prototype below to test in standalone mode or load inside the presentation shell.
+      </p>
+    </header>
+
+    <!-- Proposals Index Grid -->
+    <div class="proposals-grid">
+      
+      <!-- Card 1: Cider Carousel -->
+      <div class="proposal-card">
+        <div class="card-top">
+          <span class="card-tag">PRODUCT PROMOTION</span>
+          <h3 class="card-title">Fruitty Cider 3D Carousel</h3>
+          <p class="card-desc">
+            A premium full-screen showcase displaying 3D cider flavor cycles, dynamic mouse fruit parallax, and a collapsible Cloud Monitor drawer displaying ingestion logs.
+          </p>
+        </div>
+        <div class="card-actions">
+          <a href="fruit-cider-carousel.html" class="btn-card">Launch Standalone ↗</a>
+          <a href="zdminc-partner-pitch-preview.html" class="btn-card secondary">Pitch Shell 🖥️</a>
+        </div>
+      </div>
+
+      <!-- Card 2: Sandy Ridge Villas -->
+      <div class="proposal-card">
+        <div class="card-top">
+          <span class="card-tag">VILLA RESERVATION</span>
+          <h3 class="card-title">Sandy Ridge Villas Escape</h3>
+          <p class="card-desc">
+            A luxury full-screen suite selection carousel using generated Caribbean images, 3D card tilt behaviors, details panels, and booking simulation drawers.
+          </p>
+        </div>
+        <div class="card-actions">
+          <a href="sandy-ridge-villa.html" class="btn-card">Launch Standalone ↗</a>
+          <a href="zdminc-partner-pitch-preview.html" class="btn-card secondary">Pitch Shell 🖥️</a>
+        </div>
+      </div>
+
+      <!-- Card 3: Ferrari campaign -->
+      <div class="proposal-card">
+        <div class="card-top">
+          <span class="card-tag">AUTOMOTIVE CAMPAIGN</span>
+          <h3 class="card-title">Ferrari 296 GTB Bento</h3>
+          <p class="card-desc">
+            A high-impact promotional bento dashboard showing interactive specs modals, scroll-snaps, configuration metrics, and webhook checkout streams.
+          </p>
+        </div>
+        <div class="card-actions">
+          <a href="ferrari-promo.html" class="btn-card">Launch Standalone ↗</a>
+          <a href="zdminc-partner-pitch-preview.html" class="btn-card secondary">Pitch Shell 🖥️</a>
+        </div>
+      </div>
+
+      <!-- Card 4: Presentation Central -->
+      <div class="proposal-card">
+        <div class="card-top">
+          <span class="card-tag">PRESENTATION CENTRAL</span>
+          <h3 class="card-title">Partner Pitch Presentation</h3>
+          <p class="card-desc">
+            The unified design shell embedding interactive client prototype frames inside mock browser viewports alongside business projections and growth forecasts.
+          </p>
+        </div>
+        <div class="card-actions">
+          <a href="zdminc-partner-pitch-preview.html" class="btn-card" style="width: 100%; justify-content: center;">Enter Pitch Preview Shell 🖥️</a>
+        </div>
+      </div>
+
+      <!-- Card 5: Island Tote -->
+      <div class="proposal-card">
+        <div class="card-top">
+          <span class="card-tag">E-COMMERCE PREVIEW</span>
+          <h3 class="card-title">Island Tote E-Comm Preview</h3>
+          <p class="card-desc">
+            E-Commerce landing page displaying product customizers, checkout integrations, lead captures, and lead conversion logs.
+          </p>
+        </div>
+        <div class="card-actions">
+          <a href="island-tote-preview.html" class="btn-card">Launch Standalone ↗</a>
+        </div>
+      </div>
+
+      <!-- Card 6: Interactive Audit Guide -->
+      <div class="proposal-card">
+        <div class="card-top">
+          <span class="card-tag">SEO & STRATEGY AUDIT</span>
+          <h3 class="card-title">ZDM Agency Audit Guide</h3>
+          <p class="card-desc">
+            An interactive strategic guide detailing diagnostic search assessments, performance benchmarks, and optimizations compiled for our partners.
+          </p>
+        </div>
+        <div class="card-actions">
+          <a href="zdminc-audit-interactive-guide.html" class="btn-card">Launch Standalone ↗</a>
+        </div>
+      </div>
+
+    </div>
+
+    <footer>
+      <div>© 2026 ZEE DIGITAL MARKETING INC. ALL RIGHTS RESERVED.</div>
+      <div>
+        <a href="zdminc-partner-pitch-preview.html">PRESENTATION VIEW</a> · 
+        <a href="https://github.com/specialist-a11y/partnership.git" target="_blank">GITHUB REPO</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Custom Cursor tracking
+    const dot = document.getElementById('cursor-dot');
+    const ring = document.getElementById('cursor-ring');
+
+    document.addEventListener('mousemove', (e) => {
+      dot.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+      ring.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+    });
+
+    // Hover state detection
+    const interactables = document.querySelectorAll('a, button, .proposal-card');
+    interactables.forEach(item => {
+      item.addEventListener('mouseenter', () => {
+        document.body.classList.add('cursor-hover');
+      });
+      item.addEventListener('mouseleave', () => {
+        document.body.classList.remove('cursor-hover');
+      });
+    });
+  </script>
+</body>
+</html>
